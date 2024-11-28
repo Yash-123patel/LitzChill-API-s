@@ -4,11 +4,11 @@ export interface Contest {
     description?: string;
     start_date: string;
     end_date: string;
-    status: string;
-    result: object;
-    prize: string;
+    status?: string;
+    result?: object;
+    prize?: string;
     created_at: string;
-    updated_at: string;
+    updated_at?: string;
 }
 
 export class ContestModelImpl implements Contest {
@@ -17,12 +17,11 @@ export class ContestModelImpl implements Contest {
     description?: string;
     start_date: string;
     end_date: string;
-    status: string;
-    result: object;
-    prize: string;
+    status?: string;
+    result?: object;
+    prize?: string;
     created_at: string;
-    updated_at: string;
-
+    updated_at?: string;
    
     constructor(data: Contest) {
         this.contest_id = data.contest_id;
@@ -33,7 +32,7 @@ export class ContestModelImpl implements Contest {
         this.status = data.status;
         this.result = data.result;
         this.prize = data.prize;
-        this.created_at = data.created_at;
+        this.created_at =new Date().toISOString();
         this.updated_at = data.updated_at;
     }
 }

@@ -7,16 +7,18 @@ import { validateContestData } from "../_validation/ValidateContestDetails.ts";
 export async function createContext(req:Request) {
 
     try { 
-        const contest:ContestModelImpl=await req.json();
-        
-       
-        const validationErrors = validateContestData(contest);
+        const contest=await req.json();
+        const constData=new ContestModelImpl(contest);
+
+
+        const validationErrors = validateContestData(constData);
         if(validationErrors.length!==0){
             const errorMessage = `${validationErrors.join(',  ')}`;
             return handleBadRequestError(errorMessage);
         }
 
-         const insertedData=await createContest(contest);
+
+         const insertedData=await createContest(constData);
         if(!insertedData || insertedData.length === 0){
            return  handleInternalServerError("Contest not created due to some error");
         }
@@ -26,7 +28,7 @@ export async function createContext(req:Request) {
             {status: Http_Status_Codes.CREATED,headers: { "Content-Type": "application/json" } },
           )
     } catch (error) {
-
+        console.error("Unexpected Error:", error);
        return handleInternalServerError(`Unexpected Error ${error}`);
     }
 }

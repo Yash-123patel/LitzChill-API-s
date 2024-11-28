@@ -10,6 +10,6 @@ Deno.serve(async (req) => {
 
   return new Response(
     JSON.stringify(new ErrorResponseImpl(Http_Status_Codes.METHOD_NOT_ALLOWED,"Only POST Method Allowed For This Operation",new Date())),
-    { headers: { "Content-Type": "application/json" } },
+    { status:Http_Status_Codes.METHOD_NOT_ALLOWED,headers: { "Content-Type": "application/json" } },
   )
 })
