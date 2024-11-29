@@ -35,4 +35,11 @@ export function handleInternalServerError(errorMessage: string) {
         {status: Http_Status_Codes.INTERNAL_SERVER_ERROR, headers: { "Content-Type": "application/json" } }
     );
 }
+//handle method not allowed error
+export function handleMethodNotAllowedError(method:string){
+    return new Response(
+        JSON.stringify(new ErrorResponseImpl(Http_Status_Codes.METHOD_NOT_ALLOWED,`Only ${method} Method Allowed For This Operation`,new Date())),
+        { status:Http_Status_Codes.METHOD_NOT_ALLOWED,headers: { "Content-Type": "application/json" } },
+      )
+}
 

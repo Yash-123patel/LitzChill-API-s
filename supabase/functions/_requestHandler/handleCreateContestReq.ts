@@ -8,6 +8,9 @@ export async function createContext(req:Request) {
 
     try { 
         const contest=await req.json();
+        if (Object.keys(contest).length === 0) {
+            return handleBadRequestError("Request Body is empty");
+        }
         const constData=new ContestModelImpl(contest);
 
 

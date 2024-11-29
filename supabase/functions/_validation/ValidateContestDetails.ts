@@ -37,7 +37,7 @@ export function validateContestData(contestData:ContestModelImpl){
     return validationErrors;
    
 }
-function isValidISODate(date: string): boolean {
+export function isValidISODate(date: string): boolean {
     const isoDateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/;
     return isoDateRegex.test(date);
 }
