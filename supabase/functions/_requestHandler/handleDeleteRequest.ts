@@ -2,6 +2,7 @@ import { handleBadRequestError,handleInternalServerError ,handleNotFoundError} f
 import { V4 } from "https://deno.land/x/uuid@v0.1.2/mod.ts";
 import { Http_Status_Codes } from "../_shared/_constant/HttpStatusCodes.ts";
 import { checkContestIdIsPresentOrNot } from "../_repository/GetContestDetailsById.ts";
+
 import { deleteContestById } from "../_repository/DeleteContestById.ts";
 
 export async function deleteContest(req:Request) {
@@ -10,14 +11,14 @@ export async function deleteContest(req:Request) {
          const path=url.pathname.split('/');
          const contest_id=path[path.length-1];
 
-         if(!contest_id||!isNaN(Number(contest_id))|| !V4.isValid(contest_id)){
-            return handleBadRequestError("Invalid Contest_id Please Provide Valid Contest_id in UUID Format");
+         if (!contest_id || !V4.isValid(contest_id)) {
+            return handleBadRequestError("Invalid Contest_id. Please provide a valid Contest_id in UUID format.");
         }
 
          const count=await checkContestIdIsPresentOrNot(contest_id);
 
-         if(!count||count.length==0){
-            return handleNotFoundError("Contest Id does not exist Or May Contest is Deleted"); 
+         if(count==0){
+            return handleNotFoundError("Contest Id does not exist Or May Contest is already Deleted"); 
          }
 
          const deletedData=await deleteContestById(contest_id);

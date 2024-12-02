@@ -6,6 +6,7 @@ import { updateContestById } from "../_repository/UpdateContestDetails.ts";
 import { Http_Status_Codes } from "../_shared/_constant/HttpStatusCodes.ts";
 import { checkContestIdIsPresentOrNot } from "../_repository/GetContestDetailsById.ts";
 
+
 export async function updateContestDetails(req:Request) {
 
    try {
@@ -13,15 +14,15 @@ export async function updateContestDetails(req:Request) {
     const path=url.pathname.split('/');
     const contest_id=path[path.length-1];
 
-    if(!contest_id||!isNaN(Number(contest_id))|| !V4.isValid(contest_id)){
-        return handleBadRequestError("Invalid Contest_id Please Provide Valid Contest_id in UUID Format");
+    if (!contest_id || !V4.isValid(contest_id)) {
+        return handleBadRequestError("Invalid Contest_id. Please provide a valid Contest_id in UUID format.");
     }
 
    
 
     const count=await checkContestIdIsPresentOrNot(contest_id);
     console.log(count);
-    if(!count||count.length==0){
+    if(count==0){
         return handleNotFoundError("Contest Id does not exist Or May Contest is Deleted ");
     }
 
@@ -36,6 +37,26 @@ export async function updateContestDetails(req:Request) {
           return handleBadRequestError("Please Provide Valid Contest-Title")
         }
     }
+    if(contestDetails.description){
+        if(contestDetails.description.trim().length>500||contestDetails.description.trim().length<8)
+            return handleBadRequestError("Please Provide valid description");
+    }
+      
+    if(contestDetails.start_date){
+        if(isValidISODate(contestDetails.start_date))
+        {
+            const start_date=new Date(contestDetails.start_date);
+            const current_date=new Date();
+            console.log(start_date +"  "+ current_date);
+            if (start_date <= current_date) {
+                return handleBadRequestError("Invalid start date cannot be current date");
+            }
+            
+        }
+        else {
+            return handleBadRequestError("Invalid Date Format");
+          }
+    }
 
     if(contestDetails.end_date){
         if(isValidISODate(contestDetails.end_date))
@@ -44,7 +65,7 @@ export async function updateContestDetails(req:Request) {
             const current_date=new Date();
             console.log(end_date +"  "+ current_date);
             if (end_date <= current_date) {
-                return handleBadRequestError("Invalid End Date");
+                return handleBadRequestError("Invalid End Date cannot be less than current date");
             }
             
         }
@@ -59,7 +80,7 @@ export async function updateContestDetails(req:Request) {
 
     const updatedData=await updateContestById(contestDetails);
 
-    if(!updatedData){
+    if(!updatedData||updatedData.length==0){
         throw new Error(`Failed To update contest details`);
     }
    

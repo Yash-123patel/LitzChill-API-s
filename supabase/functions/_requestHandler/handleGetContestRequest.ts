@@ -13,20 +13,20 @@ export async function getContestById(req:Request) {
         const path=url.pathname.split('/');
         const contest_id=path[path.length-1];
 
-        if(!contest_id||!isNaN(Number(contest_id))|| !V4.isValid(contest_id)){
-            return handleBadRequestError("Invalid Contest_id Please Provide Valid Contest_id in UUID Format");
+        if (!contest_id || !V4.isValid(contest_id)) {
+            return handleBadRequestError("Invalid Contest_id. Please provide a valid Contest_id in UUID format.");
         }
        
         const count=await checkContestIdIsPresentOrNot(contest_id);
         console.log(count);
-        if(!count||count.length==0){
-            return handleNotFoundError("Contest Id does not exist Or May Contest is Deleted");
+        if(count==0){
+            return handleNotFoundError("Contest Id does not exist or contest is deleted");
         }
 
         const contestData=await getContestDetailsById(contest_id);
     
         if (!contestData|| contestData.length==0) {
-            throw new Error('Failed to fetch contest details');
+            return handleNotFoundError('MayBe Contest deleted');
         }
         return new Response(
             JSON.stringify({message:"Contest Details",data:contestData}),
