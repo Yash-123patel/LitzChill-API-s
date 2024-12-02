@@ -78,9 +78,9 @@ export async function addComment(commentData: CommentImpl) {
 
 export async function  updateCommentsCoun(contentTpe:string,commentData:CommentImpl) {
    
-        if(contentTpe==="meme"){
-            const { data: commentCount, error } = await supabase
-          .from('meme')
+  
+      const { data: commentCount, error } = await supabase
+          .from(contentTpe)
           .select('comment_count')
           .eq('meme_id', commentData.meme_id)
           .single(); 
@@ -93,7 +93,7 @@ export async function  updateCommentsCoun(contentTpe:string,commentData:CommentI
       
           
           const { error: updateError } = await supabase
-            .from('meme')
+            .from(contentTpe)
             .update({ comment_count: newCommentCount })
             .eq('meme_id', commentData.meme_id);
       
@@ -102,31 +102,8 @@ export async function  updateCommentsCoun(contentTpe:string,commentData:CommentI
           }
         }
       
-        }
-        else{
-            const { data: commentCount, error } = await supabase
-          .from('contest_entry')
-          .select('comment_count')
-          .eq('meme_id', commentData.meme_id)
-          .single(); 
-        if (error) {
-          throw new Error(`Database error: ${error.message}`);
-        }
       
-        if (commentCount) {
-          const newCommentCount = commentCount.comment_count + 1;
-      
-          
-          const { error: updateError } = await supabase
-            .from('contest_entry')
-            .update({ comment_count: newCommentCount })
-            .eq('meme_id', commentData.meme_id);
-      
-          if (updateError) {
-            throw new Error(`Database error during update: ${updateError.message}`);
-          }
-        }
-      }
+       
 }
   
   
