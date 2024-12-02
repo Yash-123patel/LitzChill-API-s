@@ -1,4 +1,4 @@
-import supabase from "../_shared/_config/DBConnection.ts";
+import supabase from "../../_shared/_config/DBConnection.ts";
 
 export async function deleteContestById(contest_id:string) {
    try {

@@ -1,5 +1,5 @@
 import { Http_Method } from "../_shared/_constant/HttpMethods.ts"
-import { createContext } from "../_requestHandler/handleCreateContestReq.ts"
+import { createContext } from "../_requestHandler/_contest-module-api's/handleCreateContestReq.ts"
 import { handleInternalServerError } from "../_errorHandler/ErrorsHandler.ts"
 import { handleMethodNotAllowedError } from "../_errorHandler/ErrorsHandler.ts"
 

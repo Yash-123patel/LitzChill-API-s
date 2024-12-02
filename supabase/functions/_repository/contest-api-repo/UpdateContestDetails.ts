@@ -1,5 +1,5 @@
-import supabase from "../_shared/_config/DBConnection.ts";
-import { ContestModelImpl } from "../_model/ContestModel.ts";
+import supabase from "../../_shared/_config/DBConnection.ts";
+import { ContestModelImpl } from "../../_model/ContestModel.ts";
 
 export async function updateContestById(contestData: Partial<ContestModelImpl>) {
        

@@ -1,4 +1,4 @@
-import supabase from "../_shared/_config/DBConnection.ts";
+import supabase from "../../_shared/_config/DBConnection.ts";
 
 export async function checkContestIdIsPresentOrNot(contest_id: string) {
   try {
@@ -7,7 +7,7 @@ export async function checkContestIdIsPresentOrNot(contest_id: string) {
                .from('contest')
                .select('*', { count: 'exact', head: true }) 
                .eq('contest_id', contest_id)
-               .neq('status', "Deleted");
+               .neq('status', "deleted");
 
           console.log(count);
       if (error) {

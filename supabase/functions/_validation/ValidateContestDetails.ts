@@ -5,7 +5,7 @@ export function validateContestData(contestData:ContestModelImpl){
     const validationErrors:string[]=[];
     
 
-    if((!contestData.contest_title) || (contestData.contest_title.trim().length<3) || (contestData.contest_title.trim().length>100)){
+    if( (contestData.contest_title.trim().length<3) || (contestData.contest_title.trim().length>100)){
         validationErrors.push("Please Provide Valid Contest-Title");
     }
     if(contestData.description){
@@ -16,12 +16,7 @@ export function validateContestData(contestData:ContestModelImpl){
 
     let isDate = true;
     
-    if (!contestData.start_date || !contestData.end_date) {
-        validationErrors.push("Both start_date and end_date are required.");
-        isDate = false;  
-    }
-
-    if (isDate && (!isValidISODate(contestData.start_date) || !isValidISODate(contestData.end_date))) {
+    if ((!isValidISODate(contestData.start_date) || !isValidISODate(contestData.end_date))) {
         validationErrors.push("Invalid Date Format. Date must be in ISO 8601 format. Example: 2024-12-01T12:00:00Z");
         isDate = false; 
     }

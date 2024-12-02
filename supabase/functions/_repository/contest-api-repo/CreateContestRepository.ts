@@ -1,5 +1,5 @@
-import supabase from "../_shared/_config/DBConnection.ts";
-import {ContestModelImpl} from "../_model/ContestModel.ts"
+import supabase from "../../_shared/_config/DBConnection.ts";
+import {ContestModelImpl} from "../../_model/ContestModel.ts"
 
 export async function createContest(contest:ContestModelImpl) {
    
@@ -15,4 +15,5 @@ export async function createContest(contest:ContestModelImpl) {
    } catch (error) {
     throw new Error(`Internal server error ${error}`);
    }
+
 }

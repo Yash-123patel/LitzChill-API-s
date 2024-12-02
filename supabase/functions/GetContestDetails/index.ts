@@ -1,10 +1,9 @@
 import { Http_Method } from "../_shared/_constant/HttpMethods.ts"
 import { handleInternalServerError } from "../_errorHandler/ErrorsHandler.ts"
 import { handleMethodNotAllowedError } from "../_errorHandler/ErrorsHandler.ts"
-import {getContestById} from "../_requestHandler/handleGetContestRequest.ts"
+import {getContestById} from "../_requestHandler/_contest-module-api's/handleGetContestRequest.ts"
 
 
-//in future i need to check user has admin privillege or not.
 Deno.serve(async (req) => {
  try {
   if(req.method===Http_Method.GET){

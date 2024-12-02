@@ -1,9 +1,9 @@
-import { handleBadRequestError,handleInternalServerError ,handleNotFoundError} from "../_errorHandler/ErrorsHandler.ts";
+import { handleBadRequestError,handleInternalServerError ,handleNotFoundError} from "../../_errorHandler/ErrorsHandler.ts";
 import { V4 } from "https://deno.land/x/uuid@v0.1.2/mod.ts";
-import { Http_Status_Codes } from "../_shared/_constant/HttpStatusCodes.ts";
-import { checkContestIdIsPresentOrNot } from "../_repository/GetContestDetailsById.ts";
+import { Http_Status_Codes } from "../../_shared/_constant/HttpStatusCodes.ts";
+import { checkContestIdIsPresentOrNot } from "../../_repository/contest-api-repo/GetContestDetailsById.ts";
 
-import { deleteContestById } from "../_repository/DeleteContestById.ts";
+import { deleteContestById } from "../../_repository/contest-api-repo/DeleteContestById.ts";
 
 export async function deleteContest(req:Request) {
    try{

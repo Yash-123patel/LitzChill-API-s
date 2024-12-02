@@ -32,7 +32,7 @@ export class ContestModelImpl implements Contest {
         this.status = data.status;
         this.result = data.result;
         this.prize = data.prize;
-        this.created_at =new Date().toISOString();
+        this.created_at =data.created_at;
         this.updated_at = data.updated_at;
     }
 }

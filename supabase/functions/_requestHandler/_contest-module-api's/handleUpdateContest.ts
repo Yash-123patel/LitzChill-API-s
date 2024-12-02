@@ -1,10 +1,11 @@
-import { ContestModelImpl } from "../_model/ContestModel.ts";
-import { handleBadRequestError,handleInternalServerError ,handleNotFoundError} from "../_errorHandler/ErrorsHandler.ts";
+import { ContestModelImpl } from "../../_model/ContestModel.ts";
+import { handleBadRequestError,handleInternalServerError ,handleNotFoundError} from "../../_errorHandler/ErrorsHandler.ts";
 import { V4 } from "https://deno.land/x/uuid@v0.1.2/mod.ts";
-import { isValidISODate } from "../_validation/ValidateContestDetails.ts";
-import { updateContestById } from "../_repository/UpdateContestDetails.ts";
-import { Http_Status_Codes } from "../_shared/_constant/HttpStatusCodes.ts";
-import { checkContestIdIsPresentOrNot } from "../_repository/GetContestDetailsById.ts";
+import { isValidISODate } from "../../_validation/ValidateContestDetails.ts";
+import { updateContestById } from "../../_repository/contest-api-repo/UpdateContestDetails.ts";
+import { Http_Status_Codes } from "../../_shared/_constant/HttpStatusCodes.ts";
+import { checkContestIdIsPresentOrNot } from "../../_repository/contest-api-repo/GetContestDetailsById.ts";
+import { ErrorResponseImpl } from "../../_errorHandler/ErrorResponse.ts";
 
 
 export async function updateContestDetails(req:Request) {
@@ -31,7 +32,6 @@ export async function updateContestDetails(req:Request) {
         return handleBadRequestError("Request Body is empty");
     }
     contestDetails.contest_id=contest_id;
-    contestDetails.updated_at=new Date().toISOString();
     if(contestDetails.contest_title){
         if((contestDetails.contest_title.trim().length<3) || (contestDetails.contest_title.trim().length>100)){
           return handleBadRequestError("Please Provide Valid Contest-Title")
@@ -74,10 +74,20 @@ export async function updateContestDetails(req:Request) {
           }
     }
 
+    
+    const validStatuses = ['Ongoing', 'Completed', 'Upcoming'];
+    if(contestDetails.status){
+        if (!validStatuses.includes(contestDetails.status)) {
+            return new Response(
+              JSON.stringify(new ErrorResponseImpl(Http_Status_Codes.BAD_REQUEST,"Invalid status. Must be one of 'Ongoing', 'Completed', 'Upcoming'",new Date())),
+              { status: 400 ,headers:{ "Content-Type": "application/json" }}
+            );
+          }
+       }
     contestDetails.contest_id=contest_id;
     console.log(contestDetails.contest_id);
 
-
+    contestDetails.updated_at=new Date().toISOString();
     const updatedData=await updateContestById(contestDetails);
 
     if(!updatedData||updatedData.length==0){

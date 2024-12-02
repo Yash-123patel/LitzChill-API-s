@@ -1,7 +1,7 @@
 import { Http_Method } from "../_shared/_constant/HttpMethods.ts"
 import { handleInternalServerError } from "../_errorHandler/ErrorsHandler.ts"
 import { handleMethodNotAllowedError } from "../_errorHandler/ErrorsHandler.ts"
-import { updateContestDetails } from "../_requestHandler/handleUpdateContest.ts"
+import { updateContestDetails } from "../_requestHandler/_contest-module-api's/handleUpdateContest.ts"
 
 
 //in future i need to check user has admin privillege or not.
