@@ -4,17 +4,15 @@ export async function deleteContestById(contest_id:string) {
    try {
     const{data:deletedData,error}=await supabase
     .from('contest')
-    .update({status:"Deleted"})
-    .eq('contest_id',contest_id).select();
+    .update({status:"deleted"})
+    .eq('contest_id',contest_id)
+    .neq('status',"deleted").select();
 
     if(error){
      throw new Error(`Database Error ${error.message}`);
     }
-
-    if(!deletedData||deletedData.length==0){
-     throw new Error("Deletion failed due to some error");
-    }
-
+    console.log(deletedData);
+    
     return deletedData;
    } catch (error) {
     throw new Error(`Unexpected Error ${error}`);

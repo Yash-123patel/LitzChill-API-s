@@ -1,6 +1,5 @@
-import { handleBadRequestError, handleInternalServerError, handleNotFoundError } from "../../_errorHandler/ErrorsHandler.ts";
+import { handleAllErrors} from "../../_errorHandler/ErrorsHandler.ts";
 import { Http_Status_Codes } from "../../_shared/_constant/HttpStatusCodes.ts";
-import {checkContestIdIsPresentOrNot} from "../../_repository/contest-api-repo/GetContestDetailsById.ts"
 import { getContestDetailsById } from "../../_repository/contest-api-repo/GetContestDetailsById.ts";
 import { V4 } from "https://deno.land/x/uuid@v0.1.2/mod.ts";
 
@@ -14,19 +13,13 @@ export async function getContestById(req:Request) {
         const contest_id=path[path.length-1];
 
         if (!contest_id || !V4.isValid(contest_id)) {
-            return handleBadRequestError("Invalid Contest_id. Please provide a valid Contest_id in UUID format.");
+            return handleAllErrors({status_code:Http_Status_Codes.BAD_REQUEST,error_message:"Invalid Contest_id. Please provide a valid Contest_id in UUID format.",error_time:new Date()});
         }
        
-        const count=await checkContestIdIsPresentOrNot(contest_id);
-        console.log(count);
-        if(count==0){
-            return handleNotFoundError("Contest Id does not exist or contest is deleted");
-        }
-
         const contestData=await getContestDetailsById(contest_id);
     
         if (!contestData|| contestData.length==0) {
-            return handleNotFoundError('MayBe Contest deleted');
+            return handleAllErrors({status_code:Http_Status_Codes.NOT_FOUND,error_message:'Contest Id does not exist or Maybe Contest deleted',error_time:new Date()});
         }
         return new Response(
             JSON.stringify({message:"Contest Details",data:contestData}),
@@ -34,6 +27,7 @@ export async function getContestById(req:Request) {
           )
     } catch (error) {
         console.error("Unexpected Error:", error);
-       return handleInternalServerError(`Unexpected Error ${error}`);
+        return handleAllErrors({status_code:Http_Status_Codes.INTERNAL_SERVER_ERROR,error_message:`Unexpected Error ${error}`,error_time:new Date()});
+
     }
 }

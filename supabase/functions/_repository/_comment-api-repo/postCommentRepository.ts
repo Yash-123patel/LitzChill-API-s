@@ -3,6 +3,7 @@
 import { CommentImpl } from "../../_model/CommentModel.ts";
 import supabase from "../../_shared/_config/DBConnection.ts";
 
+//checking user id is present or not
 export async function checkUserId(user_Id: string) {
     const { data: userData, error } = await supabase
         .from('user')
@@ -20,41 +21,20 @@ export async function checkUserId(user_Id: string) {
     return userData;
 }
 
+//checking meme id is present or not either meme or contest-entry table wahtever type user passed
 export async function checkContentId(contentType: string, contentID: string) {
-    let memedata;
-
-    if (contentType === "meme") {
         const { data, error } = await supabase
-            .from('meme')
+            .from(contentType)
             .select('*')
             .eq('meme_id', contentID);
 
-        memedata = data;
-
         if (error) {
             throw new Error(`Database error ${error.message}`);
-        }
-
-        console.log("meme", JSON.stringify(memedata, null, 2)); 
-
-    } else {
-        const { data, error } = await supabase
-            .from('contest_entry')
-            .select('*')
-            .eq('meme_id', contentID);
-
-        memedata = data;
-
-        if (error) {
-            throw new Error(`Database error ${error.message}`);
-        }
-
-        console.log("contest_entry", JSON.stringify(memedata, null, 2)); 
-    }
-
-    return memedata;
+        }   
+    return data;
 }
 
+//inserting comment into comment table
 export async function addComment(commentData: CommentImpl) {
     try {
       const { data: postComment, error } = await supabase
@@ -65,10 +45,7 @@ export async function addComment(commentData: CommentImpl) {
       if (error) {
         console.error("Error inserting comment:", error);
         throw new Error(`Database error: ${error.message || 'Unknown error'}`);
-      }
-
-     
-      
+      }  
       return postComment;
     } catch (err) {
       console.error("Unexpected error:", err);
@@ -76,7 +53,8 @@ export async function addComment(commentData: CommentImpl) {
     }
   }
 
-export async function  updateCommentsCoun(contentTpe:string,commentData:CommentImpl) {
+  //updating comment count
+export async function  updateCommentsCount(contentTpe:string,commentData:CommentImpl) {
    
   
       const { data: commentCount, error } = await supabase
@@ -100,10 +78,8 @@ export async function  updateCommentsCoun(contentTpe:string,commentData:CommentI
           if (updateError) {
             throw new Error(`Database error during update: ${updateError.message}`);
           }
-        }
-      
-      
-       
+        } 
+        
 }
   
   

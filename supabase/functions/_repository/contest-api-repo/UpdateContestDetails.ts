@@ -9,7 +9,8 @@ export async function updateContestById(contestData: Partial<ContestModelImpl>) 
         const{data:updatedContest,error}=await supabase
                 .from('contest')
                 .update(contestData)
-                .eq('contest_id', contestData.contest_id).select();
+                .eq('contest_id', contestData.contest_id)
+                .neq('status',"deleted").select();
 
                if(error){
                 throw new Error(`Database Error ${error.message}`);
