@@ -1,6 +1,6 @@
-import { handleAllErrors } from "../_errorHandler/ErrorsHandler.ts";
-import { ContestModelImpl } from "../_model/ContestModel.ts";
-import { Http_Status_Codes } from "../_shared/_constant/HttpStatusCodes.ts";
+import { handleAllErrors } from "../../_errorHandler/ErrorsHandler.ts";
+import { ContestModelImpl } from "../../_model/ContestModel.ts";
+import { Http_Status_Codes } from "../../_shared/_constant/HttpStatusCodes.ts";
 
 
 export  function validateContestDetails(contestDetails: Partial<ContestModelImpl>, isUpdate: boolean = false) {
@@ -59,7 +59,7 @@ export  function validateContestDetails(contestDetails: Partial<ContestModelImpl
 
     // Validating status
     if (contestDetails.status) {
-        const validStatuses = ["Ongoing", "Completed", "Upcoming"];
+        const validStatuses = ["Ongoing", "Completed", "Upcoming","ongoing", "completed", "upcoming"];
         if (!validStatuses.includes(contestDetails.status)) {
             validationErrors.push("Invalid Status. Must be one of 'Ongoing', 'Completed', 'Upcoming'.");
         }

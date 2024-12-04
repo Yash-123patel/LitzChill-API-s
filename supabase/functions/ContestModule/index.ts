@@ -9,8 +9,8 @@ Deno.serve(async (req) => {
  
   try {
     const method=req.method;
-  const url=new URL(req.url);
-  const path=url.pathname;
+    const url=new URL(req.url);
+    const path=url.pathname;
 
   const matchedRoute = routeMatching(path, AllRouters);
 
@@ -21,15 +21,17 @@ Deno.serve(async (req) => {
     console.log(handler+"  "+params);
 
     if (handler) {
-      if(method===Http_Method.DELETE){
+      if(method===Http_Method.POST||method===Http_Method.PATCH||method===Http_Method.DELETE){
         const isAdminPrivillege=await checkForAdminPrivilege(req);
         console.log("is Admin: "+isAdminPrivillege);
+        
         if(!isAdminPrivillege){
-          return handleAllErrors({status_code:Http_Status_Codes.FORBIDDEN,error_message:`UnAuthorized Access `,error_time:new Date()});
+          return handleAllErrors({status_code:Http_Status_Codes.FORBIDDEN,error_message:`User Not Authorized To Access `,error_time:new Date()});
         }  
       }
-
+       // Call the appropriate handler
       return await handler(req);
+      
     } else {
       return handleAllErrors({status_code:Http_Status_Codes.METHOD_NOT_ALLOWED,error_message:`${method} Not Allowed for this operation `,error_time:new Date()});
      
