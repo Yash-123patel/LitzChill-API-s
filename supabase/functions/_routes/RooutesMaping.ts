@@ -1,19 +1,19 @@
 import { createContext } from "../_requestHandler/_contest-module-api's/handleCreateContestReq.ts";
 import { getContestById } from "../_requestHandler/_contest-module-api's/handleGetContestRequest.ts";
-import { deleteContest } from "../_requestHandler/_contest-module-api's/handleDeleteRequest.ts";
+import { handleDeleteContest } from "../_requestHandler/_contest-module-api's/handleDeleteRequestContest.ts";
 import { updateContestDetails } from "../_requestHandler/_contest-module-api's/handleUpdateContest.ts";
 import { handleAddComment } from "../_requestHandler/_comment-module-api/handleAddCommentReq.ts";
 import { handleDeleteComment } from "../_requestHandler/_comment-module-api/hanldeDeleteCommentReq.ts";
 import { extractParameter } from "./ExtractParamFromPath.ts";
 import { getAllContest } from "../_requestHandler/_contest-module-api's/handleGetAllContestRequest.ts";
 
-import { Http_Method } from "../_shared/_constant/HttpMethods.ts";
+import { HTTP_METHOD } from "../_shared/_constant/HttpMethods.ts";
 import {
-    CommentRoutes,
-    ContestRoutes,
-    FlagRoutes,
+    COMMENT_ROUTES,
+    CONTEST_ROUTES,
+    FLAG_ROUTES,
 } from "../_shared/_routePathAndHandler/RoutePathAndHandler.ts";
-import { CommonErrorMessages } from "../_shared/_commonErrorMessages/ErrorMessages.ts";
+import { COMMON_ERROR_MESSAGES } from "../_shared/_commonErrorMessages/ErrorMessages.ts";
 import { handleAddFlagRequest } from "../_requestHandler/_flag-module-api/handleAddFlagRequest.ts";
 
 
@@ -24,34 +24,35 @@ type Router = Record<string, Record<string, RouteHandler>>;
 export const AllRouters: Router = {
 
     //contest module routes
-    [ContestRoutes.ContestCreatePath]: {
-        [Http_Method.POST]: createContext,
+    [CONTEST_ROUTES.CONTEST_CREATE_PATH]: {
+        [HTTP_METHOD.POST]: createContext,
     },
-    [ContestRoutes.ContestGetAllPath]: {
-        [Http_Method.GET]: getAllContest,
+    [CONTEST_ROUTES.CONTEST_GET_ALL_PATH]: {
+        [HTTP_METHOD.GET]: getAllContest,
     },
-    [ContestRoutes.ContestGetByIdPath]: {
-        [Http_Method.GET]: getContestById,
+    [CONTEST_ROUTES.CONTEST_GET_BY_ID_PATH]: {
+        [HTTP_METHOD.GET]: getContestById,
     },
-    [ContestRoutes.ContestUpdateByIdPath]: {
-        [Http_Method.PATCH]: updateContestDetails,
+    [CONTEST_ROUTES.CONTEST_UPDATE_BY_ID_PATH]: {
+        [HTTP_METHOD.PATCH]: updateContestDetails,
     },
-    [ContestRoutes.ContestDeleteByIdPath]: {
-        [Http_Method.DELETE]: deleteContest,
+    [CONTEST_ROUTES.CONTEST_DELETE_BY_ID_PATH]: {
+        [HTTP_METHOD.DELETE]: handleDeleteContest,
     },
 
 
     //comment module routes
-    [CommentRoutes.CommentAddPath]: {
-        [Http_Method.POST]: handleAddComment,
+    [COMMENT_ROUTES.COMMENT_ADD_PATH]: {
+        [HTTP_METHOD.POST]: handleAddComment,
     },
-    [CommentRoutes.CommentDeleteByIdPath]: {
-        [Http_Method.DELETE]: handleDeleteComment,
+    [COMMENT_ROUTES.COMMENT_DELETE_BY_ID_PATH]: {
+        [HTTP_METHOD.DELETE]: handleDeleteComment,
     },
 
+    
     //flag module routes
-    [FlagRoutes.ADDFLAGTOMEME]:{
-        [Http_Method.POST]:handleAddFlagRequest
+    [FLAG_ROUTES.ADD_FLAG_TO_MEME]:{
+        [HTTP_METHOD.POST]:handleAddFlagRequest
     }
 };
 
@@ -67,6 +68,6 @@ export function routeMatching(path: string, routes: Router) {
         }
         return null;
     } catch (error) {
-        throw new Error(`${CommonErrorMessages.InternalServerError}${error}`);
+        throw new Error(`${COMMON_ERROR_MESSAGES.INTERNAL_SERVER_ERROR}${error}`);
     }
 }

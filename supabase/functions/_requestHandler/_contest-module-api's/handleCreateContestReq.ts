@@ -1,64 +1,69 @@
 import { createContest } from "../../_repository/_contest-api-repo/CreateContestRepository.ts";
 import { ContestModelImpl } from "../../_model/_contestModules/ContestModel.ts";
 import { handleAllErrors } from "../../_errorHandler/ErrorsHandler.ts";
-import { Http_Status_Codes } from "../../_shared/_constant/HttpStatusCodes.ts";
+import { HTTP_STATUS_CODE } from "../../_shared/_constant/HttpStatusCodes.ts";
 import { validateContestDetails } from "../../_validation/_contestModulValidation/ValidateContestAllDetails.ts";
-import { CommonErrorMessages } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
-import { ContestModuleErrorMessages } from "../../_shared/_contestModuleMessages/ErrorMessages.ts";
-import { ContestModuleSuccessMessages } from "../../_shared/_contestModuleMessages/SuccessMessages.ts";
-import { HeadercontentType } from "../../_shared/_commonSuccessMessages/SuccessMessages.ts";
+import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
+import { CONTEST_MODULE_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
+import { CONTEST_MODULE_SUCCESS_MESSAGES } from "../../_shared/_commonSuccessMessages/SuccessMessages.ts";
+import { handleAllSuccessResponse } from "../../_successHandler/CommonSuccessResponse.ts";
 
-
-export async function createContext(req: Request) {
+export async function createContext(req: Request):Promise<Response> {
     try {
+        // Parsing the request body to get the contest details
         const contest = await req.json();
 
-   
+        // Check if the request body is empty
         if (Object.keys(contest).length === 0) {
+            console.log("Error: Empty request body.");
             return handleAllErrors({
-                status_code: Http_Status_Codes.BAD_REQUEST,
-                error_message: CommonErrorMessages.EmptyRequestBody,
+                status_code: HTTP_STATUS_CODE.BAD_REQUEST,
+                error_message: COMMON_ERROR_MESSAGES.EMPTY_REQUEST_BODY,
                 error_time: new Date(),
             });
         }
+
+        // Creating a ContestModelImpl instance with the contest data
         const contestData = new ContestModelImpl(contest);
 
+        // Validating the contest details
         const validationErrors = validateContestDetails(contestData);
-        console.log(validationErrors);
-        
+        console.log("Validation Errors:", validationErrors);
+
         if (validationErrors instanceof Response) {
+            // If there are validation errors, return the response
             return validationErrors;
         }
 
         contestData.created_at = new Date().toISOString();
-        contestData.status=contestData.status?.toLocaleLowerCase();
+        contestData.status = contestData.status?.toLocaleLowerCase();
 
-        
         const insertedData = await createContest(contestData);
 
+        // Checking if the contest was created successfully
         if (!insertedData || insertedData.length === 0) {
+            console.log("Error: Contest not created.");
             return handleAllErrors({
-                status_code: Http_Status_Codes.INTERNAL_SERVER_ERROR,
-                error_message:ContestModuleErrorMessages.ContestNotCreated,
+                status_code: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
+                error_message: CONTEST_MODULE_ERROR_MESSAGES.CONTEST_NOT_CREATED,
                 error_time: new Date(),
             });
         }
 
-        return new Response(
-            JSON.stringify({
-                message: ContestModuleSuccessMessages.ContestCreated,
-                data: insertedData,
-            }),
-            {
-                status: Http_Status_Codes.CREATED,
-                headers: { [HeadercontentType.ContetTypeHeading]: HeadercontentType.ContentTypeValue }
-            },
+        // Returning success response with created contest data
+        return handleAllSuccessResponse(
+            CONTEST_MODULE_SUCCESS_MESSAGES.CONTEST_CREATED,
+            insertedData,
+            HTTP_STATUS_CODE.CREATED,
         );
+        
     } catch (error) {
+        // handling internal errors
         console.error("Unexpected Error:", error);
         return handleAllErrors({
-            status_code: Http_Status_Codes.INTERNAL_SERVER_ERROR,
-            error_message: `${CommonErrorMessages.InternalServerError},${error}`,
+            status_code: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
+            error_message:
+                `${COMMON_ERROR_MESSAGES.INTERNAL_SERVER_ERROR}, ${error}`,
             error_time: new Date(),
         });
     }

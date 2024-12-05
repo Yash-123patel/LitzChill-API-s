@@ -1,3 +1,5 @@
+
+//comment module
 export interface Comment {
     comment_id?: string; 
     meme_id: string;     

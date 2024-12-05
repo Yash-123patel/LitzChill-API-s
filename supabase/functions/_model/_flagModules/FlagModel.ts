@@ -1,3 +1,4 @@
+//flag module
 export interface FlagModel {
     flag_id?: string;      
     contentId: string;  

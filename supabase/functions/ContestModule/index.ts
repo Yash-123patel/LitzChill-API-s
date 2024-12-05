@@ -1,77 +1,115 @@
 import { handleAllErrors } from "../_errorHandler/ErrorsHandler.ts";
 import { AllRouters } from "../_routes/RooutesMaping.ts";
 import { routeMatching } from "../_routes/RooutesMaping.ts";
-import { CommonErrorMessages } from "../_shared/_commonErrorMessages/ErrorMessages.ts";
-import { Http_Method } from "../_shared/_constant/HttpMethods.ts";
-import { Http_Status_Codes } from "../_shared/_constant/HttpStatusCodes.ts";
+import { COMMON_ERROR_MESSAGES } from "../_shared/_commonErrorMessages/ErrorMessages.ts";
+import { HTTP_METHOD } from "../_shared/_constant/HttpMethods.ts";
+import { HTTP_STATUS_CODE } from "../_shared/_constant/HttpStatusCodes.ts";
 import { checkForAdminPrivilege } from "../_userauthorization/checkAdminPrivillege.ts";
 
 Deno.serve(async (req) => {
- 
   try {
-    const method=req.method;
-    const url=new URL(req.url);
-    const path=url.pathname;
+    // Extracting HTTP method, URL, and path from the request
+    const method = req.method;
+    const url = new URL(req.url);
+    const path = url.pathname;
+    console.log(`Request received - Method: ${method}, Path: ${path}`);
 
-    //routing for static path
-    const allroute = AllRouters[path];
+    // Check if the request matches any static route
+    const route = AllRouters[path];
+    console.log("Static route lookup result:", route);
 
-    
-    console.log("allroute ",allroute);
+    if (route) {
+      // Check if the route has a handler for the given HTTP method
+      const handler = route[method];
+      console.log("Handler for static route:", handler);
 
-    if (allroute) {
-      const handler = allroute[method];
       if (handler) {
-        if(method===Http_Method.POST){
-          const isAdminPrivillege=await checkForAdminPrivilege(req);
-      
-          if(!isAdminPrivillege){
-             return handleAllErrors({status_code:Http_Status_Codes.FORBIDDEN,error_message:`${CommonErrorMessages.UnAuthorizedUser}`,error_time:new Date()});
-           } 
+        if (method === HTTP_METHOD.POST) {
+          // Verify admin privileges for POST requests
+          const isAdminPrivilege = await checkForAdminPrivilege(req);
+          console.log("Admin privilege check:", isAdminPrivilege);
+
+          if (!isAdminPrivilege) {
+
+            console.log("Returning Forbidden response for unauthorized user on static POST route");
+            return handleAllErrors({
+              status_code: HTTP_STATUS_CODE.FORBIDDEN,
+              error_message: `${COMMON_ERROR_MESSAGES.UNAUTHORIZED_USER}`,
+              error_time: new Date(),
+            });
+          }
         }
-        return await handler(req);
-      } else {
+        console.log("Calling handler for static route");
+        return await handler(req); // Call the route handler
+      }
+     else {
+       //returning unsupported method response
+        console.log("Returning Method Not Allowed response for unsupported method on static route");
         return handleAllErrors({
-          status_code: Http_Status_Codes.METHOD_NOT_ALLOWED,
-          error_message: CommonErrorMessages.MethodNotAllowed,
+          status_code: HTTP_STATUS_CODE.METHOD_NOT_ALLOWED,
+          error_message: COMMON_ERROR_MESSAGES.METHOD_NOT_ALLOWED,
           error_time: new Date(),
         });
       }
     }
 
-    //routing for dynamic path
-   const matchedRoute = routeMatching(path, AllRouters);
+    // Attempt dynamic route matching if no static route is found
+    const matchedRoute = routeMatching(path, AllRouters);
+    console.log("Dynamic route match result:", matchedRoute);
 
-   if(matchedRoute){
-    const {route,params} = matchedRoute;
+    if (matchedRoute) {
+      const { route, params } = matchedRoute;
+      const handler = route[method];
+      console.log(`Dynamic route handler: ${handler}, Params:`, params);
 
-    const handler = route[method];
-    console.log(handler+"  "+params);
+      if (handler) {
+        if (
+          method === HTTP_METHOD.POST ||
+          method === HTTP_METHOD.PATCH ||
+          method === HTTP_METHOD.DELETE
+        ) {
+          // Verify admin privileges for POST, PATCH, and DELETE requests
+          const isAdminPrivilege = await checkForAdminPrivilege(req);
+          console.log("Admin privilege check:", isAdminPrivilege);
 
-    if (handler) {
-      if(method===Http_Method.POST||method===Http_Method.PATCH||method===Http_Method.DELETE){
-        
-        //checking for admin privillege
-        const isAdminPrivillege=await checkForAdminPrivilege(req);
-        console.log("is Admin: "+isAdminPrivillege);
-        
-        if(!isAdminPrivillege){
-          return handleAllErrors({status_code:Http_Status_Codes.FORBIDDEN,error_message:`${CommonErrorMessages.UnAuthorizedUser}`,error_time:new Date()});
-        }  
+
+          if (!isAdminPrivilege) {
+            console.log("Returning Forbidden response for unauthorized user on dynamic route");
+            return handleAllErrors({
+              status_code: HTTP_STATUS_CODE.FORBIDDEN,
+              error_message: `${COMMON_ERROR_MESSAGES.UNAUTHORIZED_USER}`,
+              error_time: new Date(),
+            });
+          }
+        }
+        console.log("Calling handler for dynamic route");
+        return await handler(req); // Call the route handler
+      } else {
+        // No handler for the specified HTTP method
+        console.log("Returning Method Not Allowed response for unsupported method on dynamic route");
+        return handleAllErrors({
+          status_code: HTTP_STATUS_CODE.METHOD_NOT_ALLOWED,
+          error_message: `${method} ${COMMON_ERROR_MESSAGES.METHOD_NOT_ALLOWED}`,
+          error_time: new Date(),
+        });
       }
-       // Call the appropriate handler
-      return await handler(req);
-      
-    } else {
-      return handleAllErrors({status_code:Http_Status_Codes.METHOD_NOT_ALLOWED,error_message:`${method} ${CommonErrorMessages.MethodNotAllowed}`,error_time:new Date()});
-     
     }
-  }
-  return handleAllErrors({status_code:Http_Status_Codes.NOT_FOUND,error_message:`${CommonErrorMessages.RouteNotFound}`,error_time:new Date()});
 
+     // If no route matches, return a Route Not Found response
+    console.log("Returning Route Not Found response");
+    return handleAllErrors({
+      status_code: HTTP_STATUS_CODE.NOT_FOUND,
+      error_message: `${COMMON_ERROR_MESSAGES.ROUTE_NOT_FOUND}`,
+      error_time: new Date(),
+    });
   } catch (error) {
-    return handleAllErrors({status_code:Http_Status_Codes.INTERNAL_SERVER_ERROR,error_message:`${CommonErrorMessages.InternalServerError} ${error}`,error_time:new Date()});
+
+    // Handle any unexpected errors during request processing
+    console.log("Returning Internal Server Error response for unexpected error: from index.ts",error);
+    return handleAllErrors({
+      status_code: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
+      error_message: `${COMMON_ERROR_MESSAGES.ROUTE_NOT_FOUND} ${error}`,
+      error_time: new Date(),
+    });
   }
 });
- 
-

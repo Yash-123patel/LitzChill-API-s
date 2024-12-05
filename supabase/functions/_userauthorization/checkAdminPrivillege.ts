@@ -23,7 +23,11 @@ async function decodeTokenGetUserRole(token: string): Promise<boolean> {
     try {
         const decodedToken = decode(token);
         console.log("Token: "+decodedToken);
+
+        //getting payload form token
         const payload = decodedToken[1];
+
+        //getting user id from payload
         const userId = (payload as any).sub||null;
 
         if(!userId)
@@ -31,6 +35,7 @@ async function decodeTokenGetUserRole(token: string): Promise<boolean> {
 
         console.log("User Id: "+userId);
 
+        //getting usertype from user table
         const userRoles = await getUserTypeFromUsers(userId);
 
         console.log(userRoles);
@@ -47,6 +52,7 @@ async function decodeTokenGetUserRole(token: string): Promise<boolean> {
 
         console.log("User role:", userRole);
 
+        //checking user type is admin or not
         return (userRole === "A");
     } catch (error) {
         console.error("Error in decoding token:", error);

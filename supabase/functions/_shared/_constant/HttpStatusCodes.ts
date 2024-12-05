@@ -1,4 +1,4 @@
-export const Http_Status_Codes = {
+export const HTTP_STATUS_CODE = {
     OK: 200,
     CREATED:201,
     BAD_REQUEST: 400, 

@@ -1,5 +1,5 @@
 
 export const ArrayContstant={
-    Conteststaus:["Upcoming", "Completed", "Ongoing","ongoing", "completed", "upcoming"],
-    CommentContentType:["memes", "comment"]
+    CONTEST_STATUS :["Upcoming", "Completed", "Ongoing", "ongoing", "completed", "upcoming"],
+    COMMENT_CONTENT_TYPE : ["memes", "comment"]
 }

@@ -1,50 +1,53 @@
 import { handleAllErrors } from "../../_errorHandler/ErrorsHandler.ts";
-import { addComment} from "../../_repository/_comment-api-repo/postCommentRepository.ts";
+import { addComment } from "../../_repository/_comment-api-repo/postCommentRepository.ts";
 import { Comment } from "../../_model/_commentModules/CommentModel.ts";
-import { Http_Status_Codes } from "../../_shared/_constant/HttpStatusCodes.ts";
+import { HTTP_STATUS_CODE } from "../../_shared/_constant/HttpStatusCodes.ts";
 import { validateCommentDetails } from "../../_validation/_commentModuleValidation/ValidateCommentsInfo.ts";
-import { CommentModuleErrorMessages } from "../../_shared/_commentModuleMessages/ErrorMessages.ts";
-import { CommentModuleSuccessMessages } from "../../_shared/_commentModuleMessages/SuccessMessages.ts";
-import { HeadercontentType } from "../../_shared/_commonSuccessMessages/SuccessMessages.ts";
-import { CommonErrorMessages } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
+import { COMMENT_MODULE_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
+import { COMMENT_MODULE_SUCCESS_MESSAGES } from "../../_shared/_commonSuccessMessages/SuccessMessages.ts";
+import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 import { checkUserId } from "../../_repository/_user-api-repo/CheckUserIsPresent.ts";
 import { checkContentId } from "../../_repository/_meme-api-repo/CheckMemeId.ts";
 import { getCommentCount } from "../../_repository/_meme-api-repo/getCommentCount.ts";
 import { updateCommentsCount } from "../../_repository/_meme-api-repo/UpdateCommentCount.ts";
+import { handleAllSuccessResponse } from "../../_successHandler/CommonSuccessResponse.ts";
 
-
-export async function handleAddComment(req: Request) {
+export async function handleAddComment(req: Request){
   try {
-    // Parsing request body
+    // Parsing request body to extract necessary fields
     const { user_id, contentType, contentId, comment } = await req.json();
+    console.log(`Received comment request: user_id=${user_id}, contentType=${contentType}, contentId=${contentId}, comment=${comment}`);
 
-    // Validating comment details
+    // Validating the comment details
     const validationErrors = validateCommentDetails({ user_id, contentType, contentId, comment });
     if (validationErrors instanceof Response) {
+      console.log("Validation failed: ", validationErrors);
       return validationErrors;
     }
 
-    // Checking if user exists
+    // Checking if the user exists in the database
     const userData = await checkUserId(user_id);
     if (!userData || userData.length === 0) {
+      console.log(`User with ID ${user_id} not found.`);
       return handleAllErrors({
-        status_code: Http_Status_Codes.NOT_FOUND,
-        error_message: CommentModuleErrorMessages.UserNotFound,
+        status_code: HTTP_STATUS_CODE.NOT_FOUND,
+        error_message: COMMENT_MODULE_ERROR_MESSAGES.USER_NOT_FOUND,
         error_time: new Date(),
       });
     }
 
-    // Checking if content (meme) exists
+    // Checking if the content (meme) exists in the database
     const contentData = await checkContentId(contentId);
     if (!contentData || contentData.length === 0) {
+      console.log(`Content with ID ${contentId} not found.`);
       return handleAllErrors({
-        status_code: Http_Status_Codes.NOT_FOUND,
-        error_message: CommentModuleErrorMessages.ContentNotFound,
+        status_code: HTTP_STATUS_CODE.NOT_FOUND,
+        error_message: COMMENT_MODULE_ERROR_MESSAGES.CONTENT_NOT_FOUND,
         error_time: new Date(),
       });
     }
 
-    //creating comment object
+    // Creating comment object to store in the database
     const commentData: Comment = {
       meme_id: contentId,
       user_id: user_id,
@@ -52,41 +55,41 @@ export async function handleAddComment(req: Request) {
       created_at: new Date(),
       status: "Active",
     };
+    console.log(`Creating comment for meme_id ${contentId} by user_id ${user_id}: ${comment}`);
 
-    // Adding comment into the comment table
+    // Adding the comment to the comment table in the database
     const postComment = await addComment(commentData);
     if (!postComment || postComment.length === 0) {
+      console.log("Failed to add comment to the database.");
       return handleAllErrors({
-        status_code: Http_Status_Codes.INTERNAL_SERVER_ERROR,
-        error_message: CommentModuleErrorMessages.FailedToAddComment,
+        status_code: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
+        error_message: COMMENT_MODULE_ERROR_MESSAGES.FAILED_TO_ADD_COMMENT,
         error_time: new Date(),
       });
     }
 
-    // Getting current comment count from meme table
+    // Fetching the current comment count for the content (meme)
     const commentCount = await getCommentCount(commentData.meme_id);
     if (!commentCount) {
-      throw new Error(CommentModuleErrorMessages.FailedToRetriveCommentCount);
+      console.log("Failed to retrieve current comment count for meme.");
+      throw new Error(COMMENT_MODULE_ERROR_MESSAGES.FAILED_TO_RETRIEVE_COMMENT_COUNT);
     }
 
-    // Updating comment count in the meme table
-    await updateCommentsCount( commentData.meme_id,commentCount.comment_count + 1);
+    // Updating the comment count in the meme table after adding the new comment
+    await updateCommentsCount(commentData.meme_id, commentCount.comment_count + 1);
+    console.log(`Updated comment count for meme_id ${commentData.meme_id}: ${commentCount.comment_count + 1}`);
 
-    
-    // Sending successful response
-    return new Response(
-      JSON.stringify({
-        message: CommentModuleSuccessMessages.CommentAdded,
-        data: postComment,
-      }),
-      { status: 201, headers: { [HeadercontentType.ContetTypeHeading]: HeadercontentType.ContentTypeValue} },
-    );
+    // Sending a successful response with the added comment details
+
+    return handleAllSuccessResponse(COMMENT_MODULE_SUCCESS_MESSAGES.COMMENT_ADDED,postComment,HTTP_STATUS_CODE.CREATED);
+     
 
   } catch (error) {
-    
+    // Handling any errors that occur during the comment adding process
+    console.error("Error occurred while adding comment:", error);
     return handleAllErrors({
-      status_code: Http_Status_Codes.INTERNAL_SERVER_ERROR,
-      error_message: `${CommonErrorMessages.InternalServerError} ${error}`,
+      status_code: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
+      error_message: `${COMMON_ERROR_MESSAGES.INTERNAL_SERVER_ERROR} ${error}`,
       error_time: new Date(),
     });
   }

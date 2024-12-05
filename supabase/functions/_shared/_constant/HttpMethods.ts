@@ -1,4 +1,4 @@
-export  const Http_Method={
+export  const HTTP_METHOD={
     GET:"GET",
     POST:"POST",
     DELETE:"DELETE",

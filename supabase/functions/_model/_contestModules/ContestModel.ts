@@ -1,5 +1,6 @@
+//contest module
 export interface Contest {
-    contest_id?: string;  //primary key
+    contest_id?: string;  
     contest_title: string;
     description?: string;
     start_date: string;

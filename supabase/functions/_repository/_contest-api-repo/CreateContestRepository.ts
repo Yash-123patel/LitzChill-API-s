@@ -1,8 +1,8 @@
 import supabase from "../../_shared/_config/DBConnection.ts";
 import { ContestModelImpl } from "../../_model/_contestModules/ContestModel.ts";
-import { CommonErrorMessages } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
+import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 
-
+//creating new contest
 export async function createContest(contest:ContestModelImpl) {
    
    try {
@@ -11,7 +11,7 @@ export async function createContest(contest:ContestModelImpl) {
     .insert(contest).select();
 
     if(error){
-        throw new Error(`${CommonErrorMessages.DataBaseError} ${error.message}`);
+        throw new Error(`${COMMON_ERROR_MESSAGES.DATABASE_ERROR} ${error.message}`);
     }
     return insertedData;
    } catch (error) {

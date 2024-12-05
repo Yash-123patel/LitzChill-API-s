@@ -1,89 +1,94 @@
 import { addFlagToMeme } from "../../_repository/_flag-api-repo/AddFlagToMeme.ts";
 import { FlagModel } from "../../_model/_flagModules/FlagModel.ts";
 import { handleAllErrors } from "../../_errorHandler/ErrorsHandler.ts";
-import { Http_Status_Codes } from "../../_shared/_constant/HttpStatusCodes.ts";
-import { CommonErrorMessages } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
+import { HTTP_STATUS_CODE } from "../../_shared/_constant/HttpStatusCodes.ts";
+import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 import { validateFlagDetails } from "../../_validation/_flagModuleValidation/ValidateFlagDetails.ts";
 import { checkUserId } from "../../_repository/_user-api-repo/CheckUserIsPresent.ts";
 import { checkContentId } from "../../_repository/_meme-api-repo/CheckMemeId.ts";
 import { userAlreadyFlag } from "../../_repository/_flag-api-repo/checkUserAlreadyFlag.ts";
-import { ContestModuleSuccessMessages } from "../../_shared/_contestModuleMessages/SuccessMessages.ts";
-import { HeadercontentType } from "../../_shared/_commonSuccessMessages/SuccessMessages.ts";
-import { CommentModuleErrorMessages } from "../../_shared/_commentModuleMessages/ErrorMessages.ts";
-import { FlagErrorMessages } from "../../_shared/_flagModuleMessages/ErrorMessages.ts";
+import { FLAG_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
+import { COMMENT_MODULE_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
+import { handleAllSuccessResponse } from "../../_successHandler/CommonSuccessResponse.ts";
+import { FLAG_MODULE_SUCCESS_MESSAGES } from "../../_shared/_commonSuccessMessages/SuccessMessages.ts";
 
 export async function handleAddFlagRequest(req: Request) {
     try {
+        // Parsing the request body to get flag details
         const flagData: FlagModel = await req.json();
 
+        // Checking if the flag data is empty
         if (Object.keys(flagData).length == 0) {
+            console.log("Empty request body");
             return handleAllErrors({
-                status_code: Http_Status_Codes.BAD_REQUEST,
-                error_message: CommonErrorMessages.EmptyRequestBody,
+                status_code: HTTP_STATUS_CODE.BAD_REQUEST,
+                error_message: COMMON_ERROR_MESSAGES.EMPTY_REQUEST_BODY,
                 error_time: new Date(),
             });
         }
 
-        // Validating flag details.
+        // Validating the flag details
         const validationErrors = validateFlagDetails(flagData);
         if (validationErrors instanceof Response) {
+            console.log("Validation failed");
             return validationErrors;
         }
 
-        // Check if user ID is present
+        // Checking if the user exists
         const userData = await checkUserId(flagData.user_id);
         if (!userData || userData.length == 0) {
+            console.log("User not found");
             return handleAllErrors({
-                status_code: Http_Status_Codes.NOT_FOUND,
-                error_message: CommentModuleErrorMessages.UserNotFound,
+                status_code: HTTP_STATUS_CODE.NOT_FOUND,
+                error_message: COMMENT_MODULE_ERROR_MESSAGES.USER_NOT_FOUND,
                 error_time: new Date(),
             });
         }
 
-        // Check if content ID (meme) is present
+        // Checking if the meme (content) exists
         const memeData = await checkContentId(flagData.contentId);
         if (!memeData || memeData.length == 0) {
+            console.log("Meme not found");
             return handleAllErrors({
-                status_code: Http_Status_Codes.NOT_FOUND,
-                error_message: CommentModuleErrorMessages.ContentNotFound,
+                status_code: HTTP_STATUS_CODE.NOT_FOUND,
+                error_message: COMMENT_MODULE_ERROR_MESSAGES.CONTENT_NOT_FOUND,
                 error_time: new Date(),
             });
         }
 
-        // Check if user has already flagged content
+        // Checking if the user has already flagged this meme
         const userFlag = await userAlreadyFlag(flagData.user_id);
         if (userFlag) {
+            console.log("User has already flagged this meme");
             return handleAllErrors({
-                status_code: Http_Status_Codes.CONFLICT,
-                error_message: FlagErrorMessages.USERALREADYADDEDFLAG,
+                status_code: HTTP_STATUS_CODE.CONFLICT,
+                error_message: FLAG_ERROR_MESSAGES.USER_ALREADY_ADDED_FLAG,
                 error_time: new Date(),
             });
         }
 
-        // Adding flag to the meme
+        // Adding the flag to the meme
         const addedFlag = await addFlagToMeme(flagData);
         if (!addedFlag) {
+            console.log("Error during adding flag");
             return handleAllErrors({
-                status_code: Http_Status_Codes.INTERNAL_SERVER_ERROR,
-                error_message: FlagErrorMessages.FLAGERRORDURINGADDING,
+                status_code: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
+                error_message: FLAG_ERROR_MESSAGES.FLAG_ERROR_DURING_ADDING,
                 error_time: new Date(),
             });
         }
 
-        return new Response(
-            JSON.stringify({
-                message: ContestModuleSuccessMessages.ContestCreated,
-                data: addedFlag,
-            }),
-            {
-                status: Http_Status_Codes.CREATED,
-                headers: { [HeadercontentType.ContetTypeHeading]: HeadercontentType.ContentTypeValue }
-            }
-        );
+        // Success response with the added flag details
+        console.log("Flag added successfully");
+
+        return handleAllSuccessResponse(FLAG_MODULE_SUCCESS_MESSAGES.FLAG_ADDED,addedFlag,HTTP_STATUS_CODE.CREATED);
+         
     } catch (error) {
+        // Catching any unexpected errors
+        console.error("Unexpected error:", error);
         return handleAllErrors({
-            status_code: Http_Status_Codes.INTERNAL_SERVER_ERROR,
-            error_message: `${CommonErrorMessages.InternalServerError} ${error}`,
+            status_code: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
+            error_message: `${COMMON_ERROR_MESSAGES.INTERNAL_SERVER_ERROR} ${error}`,
             error_time: new Date(),
         });
     }

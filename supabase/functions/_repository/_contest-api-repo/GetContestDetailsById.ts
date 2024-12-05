@@ -1,6 +1,7 @@
 import supabase from "../../_shared/_config/DBConnection.ts";
-import { CommonErrorMessages } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
+import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 
+//getting existing contest by id where status is not deleted
 export async function getContestDetailsById(contest_id:string) {
     
       try {
@@ -11,7 +12,7 @@ export async function getContestDetailsById(contest_id:string) {
         .neq('status',"deleted");  
 
         if(error){
-          throw new Error(`${CommonErrorMessages.DataBaseError} ${error}`);
+          throw new Error(`${COMMON_ERROR_MESSAGES.DATABASE_ERROR} ${error}`);
         }
 
         

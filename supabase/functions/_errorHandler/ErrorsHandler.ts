@@ -1,6 +1,7 @@
 import { ErrorResponse } from "../_errorHandler/ErrorResponse.ts";
-import { HeadercontentType } from "../_shared/_commonSuccessMessages/SuccessMessages.ts";
+import { HEADER_CONTENT_TYPE } from "../_shared/_commonSuccessMessages/SuccessMessages.ts";
 
+//handling all erros details and returning json as response
 export function handleAllErrors(error: ErrorResponse) {
     return new Response(
         JSON.stringify({
@@ -10,7 +11,7 @@ export function handleAllErrors(error: ErrorResponse) {
         }),
         { 
             status: error.status_code, 
-            headers: { [HeadercontentType.ContetTypeHeading]: HeadercontentType.ContentTypeValue }
+            headers: { [HEADER_CONTENT_TYPE.CONTENT_TYPE_HEADING]: HEADER_CONTENT_TYPE.CONTENT_TYPE_VALUE }
         }
     );
 }
