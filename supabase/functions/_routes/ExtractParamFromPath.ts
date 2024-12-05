@@ -1,3 +1,6 @@
+import { CommonErrorMessages } from "../_shared/_commonErrorMessages/ErrorMessages.ts";
+
+
 //this is for extracting parameter from path
 export function extractParameter(routePattern: string, path: string) {
   try {
@@ -19,6 +22,6 @@ export function extractParameter(routePattern: string, path: string) {
     }
     return params;
   } catch (error) {
-    throw new Error(`Internal server error ${error}`);
+    throw new Error(`${CommonErrorMessages.InternalServerError} ${error}`);
   }
 }

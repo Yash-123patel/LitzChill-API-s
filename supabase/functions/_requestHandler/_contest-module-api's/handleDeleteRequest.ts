@@ -2,7 +2,13 @@ import { handleAllErrors } from "../../_errorHandler/ErrorsHandler.ts";
 import { V4 } from "https://deno.land/x/uuid@v0.1.2/mod.ts";
 import { Http_Status_Codes } from "../../_shared/_constant/HttpStatusCodes.ts";
 
-import { deleteContestById } from "../../_repository/contest-api-repo/DeleteContestById.ts";
+import { deleteContestById } from "../../_repository/_contest-api-repo/DeleteContestById.ts";
+import { ContestValidationMessages } from "../../_shared/_contestModuleMessages/ValidationMessages.ts";
+import { ContestModuleErrorMessages } from "../../_shared/_contestModuleMessages/ErrorMessages.ts";
+import { ContestModuleSuccessMessages } from "../../_shared/_contestModuleMessages/SuccessMessages.ts";
+import { HeadercontentType } from "../../_shared/_commonSuccessMessages/SuccessMessages.ts";
+import { CommonErrorMessages } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
+
 
 export async function deleteContest(req: Request) {
    try {
@@ -14,7 +20,7 @@ export async function deleteContest(req: Request) {
          return handleAllErrors({
             status_code: Http_Status_Codes.BAD_REQUEST,
             error_message:
-               "Invalid Contest_id. Please provide a valid Contest_id in UUID format.",
+              ContestValidationMessages.InvalidContestId,
             error_time: new Date(),
          });
       }
@@ -24,22 +30,22 @@ export async function deleteContest(req: Request) {
       if (!deletedData || deletedData.length == 0) {
          return handleAllErrors({
             status_code: Http_Status_Codes.NOT_FOUND,
-            error_message: "Contest Id does not exist or Maybe Contest deleted",
+            error_message: ContestModuleErrorMessages.ContestNotFoundOrDeleted,
             error_time: new Date(),
          });
       }
 
       return new Response(
-         JSON.stringify({ message: "Contest Deleted Successfully" }),
+         JSON.stringify({ message: ContestModuleSuccessMessages.ContestDeleted}),
          {
             status: Http_Status_Codes.OK,
-            headers: { "Content-Type": "application/json" },
+            headers: { [HeadercontentType.ContetTypeHeading]: HeadercontentType.ContentTypeValue  },
          },
       );
    } catch (error) {
       return handleAllErrors({
          status_code: Http_Status_Codes.INTERNAL_SERVER_ERROR,
-         error_message: `Unexpected Error ${error}`,
+         error_message: `${CommonErrorMessages.InternalServerError} ${error}`,
          error_time: new Date(),
       });
    }

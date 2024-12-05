@@ -1,4 +1,5 @@
 import supabase from "../../_shared/_config/DBConnection.ts";
+import { CommonErrorMessages } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 
 export async function getContestDetailsById(contest_id:string) {
     
@@ -10,13 +11,13 @@ export async function getContestDetailsById(contest_id:string) {
         .neq('status',"deleted");  
 
         if(error){
-          throw new Error(`Database Error ${error}`);
+          throw new Error(`${CommonErrorMessages.DataBaseError} ${error}`);
         }
 
         
         return contestData;
       } catch (error) {
-        throw new Error(`Internal Server Error ${error}`);
+        throw new Error(`${error}`);
       }
   
 }

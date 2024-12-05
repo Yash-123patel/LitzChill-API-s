@@ -1,10 +1,17 @@
 import { handleAllErrors } from "../../_errorHandler/ErrorsHandler.ts";
-import { addComment, checkUserId} from "../../_repository/_comment-api-repo/postCommentRepository.ts";
-import { checkContentId } from "../../_repository/_comment-api-repo/postCommentRepository.ts";
-import { Comment } from "../../_model/CommentModel.ts";
+import { addComment} from "../../_repository/_comment-api-repo/postCommentRepository.ts";
+import { Comment } from "../../_model/_commentModules/CommentModel.ts";
 import { Http_Status_Codes } from "../../_shared/_constant/HttpStatusCodes.ts";
 import { validateCommentDetails } from "../../_validation/_commentModuleValidation/ValidateCommentsInfo.ts";
-import { getCommentCount, updateCommentsCount } from "../../_repository/_comment-api-repo/getCommentCount.ts";
+import { CommentModuleErrorMessages } from "../../_shared/_commentModuleMessages/ErrorMessages.ts";
+import { CommentModuleSuccessMessages } from "../../_shared/_commentModuleMessages/SuccessMessages.ts";
+import { HeadercontentType } from "../../_shared/_commonSuccessMessages/SuccessMessages.ts";
+import { CommonErrorMessages } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
+import { checkUserId } from "../../_repository/_user-api-repo/CheckUserIsPresent.ts";
+import { checkContentId } from "../../_repository/_meme-api-repo/CheckMemeId.ts";
+import { getCommentCount } from "../../_repository/_meme-api-repo/getCommentCount.ts";
+import { updateCommentsCount } from "../../_repository/_meme-api-repo/UpdateCommentCount.ts";
+
 
 export async function handleAddComment(req: Request) {
   try {
@@ -22,7 +29,7 @@ export async function handleAddComment(req: Request) {
     if (!userData || userData.length === 0) {
       return handleAllErrors({
         status_code: Http_Status_Codes.NOT_FOUND,
-        error_message: "User not found with this id",
+        error_message: CommentModuleErrorMessages.UserNotFound,
         error_time: new Date(),
       });
     }
@@ -32,7 +39,7 @@ export async function handleAddComment(req: Request) {
     if (!contentData || contentData.length === 0) {
       return handleAllErrors({
         status_code: Http_Status_Codes.NOT_FOUND,
-        error_message: "Content not found with this id",
+        error_message: CommentModuleErrorMessages.ContentNotFound,
         error_time: new Date(),
       });
     }
@@ -51,7 +58,7 @@ export async function handleAddComment(req: Request) {
     if (!postComment || postComment.length === 0) {
       return handleAllErrors({
         status_code: Http_Status_Codes.INTERNAL_SERVER_ERROR,
-        error_message: "Failed to add comment. Internal server error",
+        error_message: CommentModuleErrorMessages.FailedToAddComment,
         error_time: new Date(),
       });
     }
@@ -59,7 +66,7 @@ export async function handleAddComment(req: Request) {
     // Getting current comment count from meme table
     const commentCount = await getCommentCount(commentData.meme_id);
     if (!commentCount) {
-      throw new Error("Failed to retrieve comment count. Internal server error");
+      throw new Error(CommentModuleErrorMessages.FailedToRetriveCommentCount);
     }
 
     // Updating comment count in the meme table
@@ -69,17 +76,17 @@ export async function handleAddComment(req: Request) {
     // Sending successful response
     return new Response(
       JSON.stringify({
-        message: "Comment added successfully",
+        message: CommentModuleSuccessMessages.CommentAdded,
         data: postComment,
       }),
-      { status: 201, headers: { "content-type": "application/json" } },
+      { status: 201, headers: { [HeadercontentType.ContetTypeHeading]: HeadercontentType.ContentTypeValue} },
     );
 
   } catch (error) {
     
     return handleAllErrors({
       status_code: Http_Status_Codes.INTERNAL_SERVER_ERROR,
-      error_message: `Internal server error: ${error}`,
+      error_message: `${CommonErrorMessages.InternalServerError} ${error}`,
       error_time: new Date(),
     });
   }

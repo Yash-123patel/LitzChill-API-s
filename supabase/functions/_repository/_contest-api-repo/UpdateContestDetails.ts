@@ -1,5 +1,6 @@
 import supabase from "../../_shared/_config/DBConnection.ts";
-import { ContestModelImpl } from "../../_model/ContestModel.ts";
+import { ContestModelImpl } from "../../_model/_contestModules/ContestModel.ts";
+import { CommonErrorMessages } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 
 export async function updateContestById(contestData: Partial<ContestModelImpl>) {
        
@@ -13,7 +14,7 @@ export async function updateContestById(contestData: Partial<ContestModelImpl>) 
                 .neq('status',"deleted").select();
 
                if(error){
-                throw new Error(`Database Error ${error.message}`);
+                throw new Error(`${CommonErrorMessages.DataBaseError} ${error.message}`);
                }
 
                console.log(updatedContest);

@@ -1,4 +1,5 @@
 import { ErrorResponse } from "../_errorHandler/ErrorResponse.ts";
+import { HeadercontentType } from "../_shared/_commonSuccessMessages/SuccessMessages.ts";
 
 export function handleAllErrors(error: ErrorResponse) {
     return new Response(
@@ -9,7 +10,7 @@ export function handleAllErrors(error: ErrorResponse) {
         }),
         { 
             status: error.status_code, 
-            headers: { "Content-Type": "application/json" }
+            headers: { [HeadercontentType.ContetTypeHeading]: HeadercontentType.ContentTypeValue }
         }
     );
 }

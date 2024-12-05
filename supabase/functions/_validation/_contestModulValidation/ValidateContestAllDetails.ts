@@ -1,70 +1,71 @@
 import { handleAllErrors } from "../../_errorHandler/ErrorsHandler.ts";
-import { ContestModelImpl } from "../../_model/ContestModel.ts";
+import { ContestModelImpl } from "../../_model/_contestModules/ContestModel.ts";
 import { Http_Status_Codes } from "../../_shared/_constant/HttpStatusCodes.ts";
-
+import { ArrayContstant } from "../../_shared/_constant/ArrayConstants.ts";
+import { ContestValidationMessages } from "../../_shared/_contestModuleMessages/ValidationMessages.ts";
 
 export  function validateContestDetails(contestDetails: Partial<ContestModelImpl>, isUpdate: boolean = false) {
     const validationErrors: string[] = [];
     const currentDate = new Date();
-
+    
     // Validating contest title
     if (contestDetails.contest_title) {
         if (contestDetails.contest_title.trim().length < 3 || contestDetails.contest_title.trim().length > 100) {
-            validationErrors.push("Please provide a valid Contest Title (3-100 characters).");
+            validationErrors.push(ContestValidationMessages.InvalidContetTitle);
         }
     } else if (!isUpdate) {
-        validationErrors.push("Contest Title is required.");
+        validationErrors.push(ContestValidationMessages.MissingContestTitle);
     }
 
     // Validating description
     if (contestDetails.description) {
         if (contestDetails.description.trim().length < 8 || contestDetails.description.trim().length > 500) {
-            validationErrors.push("Please provide a valid Description (8-500 characters).");
+            validationErrors.push(ContestValidationMessages.InvalidContestDescription);
         }
     }
 
     // Validating start_date
     if (contestDetails.start_date) {
         if (!isValidISODate(contestDetails.start_date)) {
-            validationErrors.push("Invalid Start Date format. Must be in ISO 8601 format.");
+            validationErrors.push(ContestValidationMessages.InvalidContestStartDateFormat);
         } else {
             const start_date = new Date(contestDetails.start_date);
-            if (start_date <= currentDate && isUpdate) {
-                validationErrors.push("Start Date cannot be in the past or current date during updates.");
+            if (start_date <= currentDate ) {
+                validationErrors.push(ContestValidationMessages.InvalidContestStartDate);
             }
         }
     } else if (!isUpdate) {
-        validationErrors.push("Start Date is required.");
+        validationErrors.push(ContestValidationMessages.MissingContestStartDate);
     }
 
     // Validating end_date
     if (contestDetails.end_date) {
         if (!isValidISODate(contestDetails.end_date)) {
-            validationErrors.push("Invalid End Date format. Must be in ISO 8601 format.");
+            validationErrors.push(ContestValidationMessages.InvalidContestEndDateFormat);
         } else {
             const end_date = new Date(contestDetails.end_date);
             if (end_date <= currentDate) {
-                validationErrors.push("End Date cannot be in the past or current date.");
+                validationErrors.push(ContestValidationMessages.InvalidEndDate);
             }
             if (contestDetails.start_date && isValidISODate(contestDetails.start_date)) {
                 const start_date = new Date(contestDetails.start_date);
                 if (start_date >= end_date) {
-                    validationErrors.push("Start Date cannot be greater than or equal to End Date.");
+                    validationErrors.push(ContestValidationMessages.InvalidContestEndDate);
                 }
             }
         }
     } else if (!isUpdate) {
-        validationErrors.push("End Date is required.");
+        validationErrors.push(ContestValidationMessages.MissingContestEndDate);
     }
 
     // Validating status
     if (contestDetails.status) {
-        const validStatuses = ["Ongoing", "Completed", "Upcoming","ongoing", "completed", "upcoming"];
+        const validStatuses = ArrayContstant.Conteststaus;
         if (!validStatuses.includes(contestDetails.status)) {
-            validationErrors.push("Invalid Status. Must be one of 'Ongoing', 'Completed', 'Upcoming'.");
+            validationErrors.push(ContestValidationMessages.InvalidContestStatus);
         }
     }else if (!isUpdate) {
-        contestDetails.status="Upcoming";
+        contestDetails.status=ArrayContstant.Conteststaus[0].toLocaleLowerCase();
     }
 
     if (validationErrors.length > 0) {

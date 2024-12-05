@@ -1,9 +1,15 @@
-import { ContestModelImpl } from "../../_model/ContestModel.ts";
+import { ContestModelImpl } from "../../_model/_contestModules/ContestModel.ts";
 import { handleAllErrors } from "../../_errorHandler/ErrorsHandler.ts";
 import { V4 } from "https://deno.land/x/uuid@v0.1.2/mod.ts";
-import { updateContestById } from "../../_repository/contest-api-repo/UpdateContestDetails.ts";
+import { updateContestById } from "../../_repository/_contest-api-repo/UpdateContestDetails.ts";
 import { Http_Status_Codes } from "../../_shared/_constant/HttpStatusCodes.ts";
 import { validateContestDetails } from "../../_validation/_contestModulValidation/ValidateContestAllDetails.ts";
+import { ContestValidationMessages } from "../../_shared/_contestModuleMessages/ValidationMessages.ts";
+import { CommonErrorMessages } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
+import { ContestModuleErrorMessages } from "../../_shared/_contestModuleMessages/ErrorMessages.ts";
+import { ContestModuleSuccessMessages } from "../../_shared/_contestModuleMessages/SuccessMessages.ts";
+import { HeadercontentType } from "../../_shared/_commonSuccessMessages/SuccessMessages.ts";
+
 
 export async function updateContestDetails(req: Request) {
     try {
@@ -15,7 +21,7 @@ export async function updateContestDetails(req: Request) {
             return handleAllErrors({
                 status_code: Http_Status_Codes.BAD_REQUEST,
                 error_message:
-                    "Invalid Contest_id. Please provide a valid Contest_id in UUID format.",
+                    ContestValidationMessages.InvalidContestId,
                 error_time: new Date(),
             });
         }
@@ -24,7 +30,7 @@ export async function updateContestDetails(req: Request) {
         if (Object.keys(contestDetails).length === 0) {
             return handleAllErrors({
                 status_code: Http_Status_Codes.BAD_REQUEST,
-                error_message: "Request Body is empty",
+                error_message: CommonErrorMessages.EmptyRequestBody,
                 error_time: new Date(),
             });
         }
@@ -44,25 +50,25 @@ export async function updateContestDetails(req: Request) {
         if (!updatedData || updatedData.length == 0) {
             return handleAllErrors({
                 status_code: Http_Status_Codes.NOT_FOUND,
-                error_message: "Conestid does not exist or contest is deleted",
+                error_message: ContestModuleErrorMessages.ContestNotFoundOrDeleted,
                 error_time: new Date(),
             });
         }
 
         return new Response(
             JSON.stringify({
-                message: "Contest Updated Successfully",
+                message: ContestModuleSuccessMessages.ContestUpdated,
                 data: updatedData,
             }),
             {
                 status: Http_Status_Codes.OK,
-                headers: { "Content-Type": "application/json" },
+                headers: { [HeadercontentType.ContetTypeHeading]: HeadercontentType.ContentTypeValue },
             },
         );
     } catch (error) {
         return handleAllErrors({
             status_code: Http_Status_Codes.NOT_FOUND,
-            error_message: `Unexpected error ${error}`,
+            error_message: `${CommonErrorMessages.InternalServerError} ${error}`,
             error_time: new Date(),
         });
     }

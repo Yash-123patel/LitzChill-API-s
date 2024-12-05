@@ -49,7 +49,7 @@ async function decodeTokenGetUserRole(token: string): Promise<boolean> {
 
         return (userRole === "A");
     } catch (error) {
-        console.error("Error decoding token:", error);
+        console.error("Error in decoding token:", error);
         return false;
     }
 }

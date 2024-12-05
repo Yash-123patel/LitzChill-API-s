@@ -1,5 +1,6 @@
 
 import supabase from "../../_shared/_config/DBConnection.ts";
+import { CommonErrorMessages } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 
 export async function getUserTypeFromUsers(userId:string) {
     try {
@@ -10,12 +11,12 @@ export async function getUserTypeFromUsers(userId:string) {
               .eq('user_id',userId);
 
               if(error)
-                throw new Error(`Internal server error ${error.message}`);
+                throw new Error(`${CommonErrorMessages.DataBaseError} ${error.message}`);
 
               return user_id;
 
     } catch (error) {
-        throw new Error(`Internal server error ${error}`);
+        throw new Error( `${error}`);
     }
     
 }
