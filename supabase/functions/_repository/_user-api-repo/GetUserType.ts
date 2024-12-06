@@ -1,5 +1,6 @@
 import supabase from "../../_shared/_config/DBConnection.ts";
 import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
+import { TABLE_NAMES } from "../../_shared/_QueriesAndTabledDetails/TableNames.ts";
 
 export async function getUserTypeFromUsers(userId: string) {
     try {
@@ -7,7 +8,7 @@ export async function getUserTypeFromUsers(userId: string) {
         
         // Querying the database to get the user type from the 'users' table
         const { data: user_id, error } = await supabase
-            .from('users')
+            .from(TABLE_NAMES.USER_TABLE)
             .select('user_type')
             .eq('user_id', userId);
 

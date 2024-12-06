@@ -20,7 +20,7 @@ export function extractParameter(routePattern: string, path: string) {
     // Extract parameters from path
     for (let i = 0; i < routePath.length; i++) {
       if (routePath[i].startsWith(":")) {
-        const paramName = routePath[i].slice(1);
+        const paramName = routePath[i].slice(1);//removing : from route path
         params[paramName] = actualPath[i];
         console.log(`Extracted parameter: ${paramName} = ${actualPath[i]}`);
       } else if (routePath[i] !== actualPath[i]) {

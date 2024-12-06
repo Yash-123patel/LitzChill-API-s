@@ -1,12 +1,12 @@
 import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 import supabase from "../../_shared/_config/DBConnection.ts";
-
+import { TABLE_NAMES } from "../../_shared/_QueriesAndTabledDetails/TableNames.ts";
 // Check if a comment exists by its ID
 export async function checkCommentId(comment_id: string) {
      try {
         // Query to check comment by comment_id
         const { data: commentData, error } = await supabase
-        .from('comments')
+        .from(TABLE_NAMES.COMMENT_TABLE)
         .select('*')
         .eq('comment_id', comment_id)
         .select(); 
@@ -16,9 +16,6 @@ export async function checkCommentId(comment_id: string) {
             throw new Error(`${COMMON_ERROR_MESSAGES.DATABASE_ERROR} ${error.message}`);
         }
         // Return empty array if no data is found
-        if (!commentData || commentData.length == 0) {
-            return [];
-        }
         return commentData ;
      } catch (error) {
 

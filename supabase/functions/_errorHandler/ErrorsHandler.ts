@@ -1,6 +1,7 @@
 import { ErrorResponse } from "../_errorHandler/ErrorResponse.ts";
 import { HEADER_CONTENT_TYPE } from "../_shared/_commonSuccessMessages/SuccessMessages.ts";
 
+
 //handling all erros details and returning json as response
 export function handleAllErrors(error: ErrorResponse) {
     return new Response(

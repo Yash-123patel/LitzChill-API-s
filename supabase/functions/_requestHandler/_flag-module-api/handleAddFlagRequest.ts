@@ -11,11 +11,13 @@ import { FLAG_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMes
 import { COMMENT_MODULE_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 import { handleAllSuccessResponse } from "../../_successHandler/CommonSuccessResponse.ts";
 import { FLAG_MODULE_SUCCESS_MESSAGES } from "../../_shared/_commonSuccessMessages/SuccessMessages.ts";
+import { updateFlagCount } from "../../_repository/_meme-api-repo/UpdateFlagCount.ts";
 
 export async function handleAddFlagRequest(req: Request) {
     try {
         // Parsing the request body to get flag details
         const flagData: FlagModel = await req.json();
+
 
         // Checking if the flag data is empty
         if (Object.keys(flagData).length == 0) {
@@ -58,7 +60,7 @@ export async function handleAddFlagRequest(req: Request) {
 
         // Checking if the user has already flagged this meme
         const userFlag = await userAlreadyFlag(flagData.user_id);
-        if (userFlag) {
+        if (userFlag&&userFlag.length>0) {
             console.log("User has already flagged this meme");
             return handleAllErrors({
                 status_code: HTTP_STATUS_CODE.CONFLICT,
@@ -66,6 +68,7 @@ export async function handleAddFlagRequest(req: Request) {
                 error_time: new Date(),
             });
         }
+        flagData.created_at=new Date();
 
         // Adding the flag to the meme
         const addedFlag = await addFlagToMeme(flagData);
@@ -78,6 +81,7 @@ export async function handleAddFlagRequest(req: Request) {
             });
         }
 
+        await updateFlagCount(memeData[0].meme_id,memeData[0].flag_count+1);
         // Success response with the added flag details
         console.log("Flag added successfully");
 

@@ -50,16 +50,16 @@ export async function handleDeleteComment(req: Request){
 
         // Preparing the comment data object
         const commentData: Comment = {
-            comment_id: dataFromRepo[0].comment_id,
-            meme_id: dataFromRepo[0].meme_id,
-            user_id: dataFromRepo[0].user_id,
-            comment: dataFromRepo[0].comment,
+            commentid: dataFromRepo[0].comment_id,
+            memeid: dataFromRepo[0].meme_id,
+            userid: dataFromRepo[0].user_id,
+            commentmessage: dataFromRepo[0].comment,
             status: dataFromRepo[0].status,
-            created_at: dataFromRepo[0].created_at,
+            createdat: dataFromRepo[0].created_at,
         };
 
         // Fetching the current comment count for the meme associated with the comment
-        const commentCount = await getCommentCount(commentData.meme_id);
+        const commentCount = await getCommentCount(commentData.memeid);
         if (!commentCount) {
             console.log("Error: Failed to retrieve current comment count.");
             throw new Error(COMMENT_MODULE_ERROR_MESSAGES.FAILED_TO_RETRIEVE_COMMENT_COUNT);
@@ -70,8 +70,8 @@ export async function handleDeleteComment(req: Request){
         console.log(`Comment with ID ${commentId} successfully deleted.`);
 
         // Updating the comment count in the meme table
-        await updateCommentsCount(commentData.meme_id, commentCount.comment_count - 1);
-        console.log(`Updated comment count for meme_id ${commentData.meme_id}: ${commentCount.comment_count - 1}`);
+        await updateCommentsCount(commentData.memeid, commentCount.comment_count - 1);
+        console.log(`Updated comment count for meme_id ${commentData.memeid}: ${commentCount.comment_count - 1}`);
 
         // Sending a successful response after deletion
 

@@ -8,7 +8,6 @@ import { COMMENT_MODULE_SUCCESS_MESSAGES } from "../../_shared/_commonSuccessMes
 import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 import { checkUserId } from "../../_repository/_user-api-repo/CheckUserIsPresent.ts";
 import { checkContentId } from "../../_repository/_meme-api-repo/CheckMemeId.ts";
-import { getCommentCount } from "../../_repository/_meme-api-repo/getCommentCount.ts";
 import { updateCommentsCount } from "../../_repository/_meme-api-repo/UpdateCommentCount.ts";
 import { handleAllSuccessResponse } from "../../_successHandler/CommonSuccessResponse.ts";
 
@@ -49,10 +48,10 @@ export async function handleAddComment(req: Request){
 
     // Creating comment object to store in the database
     const commentData: Comment = {
-      meme_id: contentId,
-      user_id: user_id,
-      comment: comment,
-      created_at: new Date(),
+      memeid: contentId,
+      userid: user_id,
+      commentmessage: comment,
+      createdat: new Date(),
       status: "Active",
     };
     console.log(`Creating comment for meme_id ${contentId} by user_id ${user_id}: ${comment}`);
@@ -68,16 +67,16 @@ export async function handleAddComment(req: Request){
       });
     }
 
-    // Fetching the current comment count for the content (meme)
-    const commentCount = await getCommentCount(commentData.meme_id);
-    if (!commentCount) {
-      console.log("Failed to retrieve current comment count for meme.");
-      throw new Error(COMMENT_MODULE_ERROR_MESSAGES.FAILED_TO_RETRIEVE_COMMENT_COUNT);
-    }
+    // // Fetching the current comment count for the content (meme)
+    // const commentCount = await getCommentCount(commentData.meme_id);
+    // if (!commentCount) {
+    //   console.log("Failed to retrieve current comment count for meme.");
+    //   throw new Error(COMMENT_MODULE_ERROR_MESSAGES.FAILED_TO_RETRIEVE_COMMENT_COUNT);
+    // }
 
     // Updating the comment count in the meme table after adding the new comment
-    await updateCommentsCount(commentData.meme_id, commentCount.comment_count + 1);
-    console.log(`Updated comment count for meme_id ${commentData.meme_id}: ${commentCount.comment_count + 1}`);
+    await updateCommentsCount(commentData.memeid, contentData[0].comment_count + 1);
+    console.log(`Updated comment count for meme_id ${commentData.memeid}: ${contentData[0].comment_count + 1}`);
 
     // Sending a successful response with the added comment details
 

@@ -1,5 +1,5 @@
 import { createContest } from "../../_repository/_contest-api-repo/CreateContestRepository.ts";
-import { ContestModelImpl } from "../../_model/_contestModules/ContestModel.ts";
+import { ContestModel } from "../../_model/_contestModules/ContestModel.ts";
 import { handleAllErrors } from "../../_errorHandler/ErrorsHandler.ts";
 import { HTTP_STATUS_CODE } from "../../_shared/_constant/HttpStatusCodes.ts";
 import { validateContestDetails } from "../../_validation/_contestModulValidation/ValidateContestAllDetails.ts";
@@ -11,10 +11,10 @@ import { handleAllSuccessResponse } from "../../_successHandler/CommonSuccessRes
 export async function createContext(req: Request):Promise<Response> {
     try {
         // Parsing the request body to get the contest details
-        const contest = await req.json();
+        const contestData :ContestModel= await req.json();
 
         // Check if the request body is empty
-        if (Object.keys(contest).length === 0) {
+        if (Object.keys(contestData).length === 0) {
             console.log("Error: Empty request body.");
             return handleAllErrors({
                 status_code: HTTP_STATUS_CODE.BAD_REQUEST,
@@ -24,7 +24,7 @@ export async function createContext(req: Request):Promise<Response> {
         }
 
         // Creating a ContestModelImpl instance with the contest data
-        const contestData = new ContestModelImpl(contest);
+     
 
         // Validating the contest details
         const validationErrors = validateContestDetails(contestData);
@@ -35,7 +35,7 @@ export async function createContext(req: Request):Promise<Response> {
             return validationErrors;
         }
 
-        contestData.created_at = new Date().toISOString();
+        contestData.createdat = new Date().toISOString();
         contestData.status = contestData.status?.toLocaleLowerCase();
 
         const insertedData = await createContest(contestData);

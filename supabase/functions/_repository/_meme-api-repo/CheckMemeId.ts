@@ -1,11 +1,12 @@
 import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 import supabase from "../../_shared/_config/DBConnection.ts";
+import { TABLE_NAMES } from "../../_shared/_QueriesAndTabledDetails/TableNames.ts";
 
 //checking meme id is present or not
 export async function checkContentId(contentID: string) {
     try {
       const { data, error } = await supabase
-        .from('memes')
+        .from(TABLE_NAMES.MEME_TABLE)
         .select('*')
         .eq('meme_id', contentID);
 

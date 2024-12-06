@@ -1,11 +1,12 @@
 import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 import supabase from "../../_shared/_config/DBConnection.ts";
+import { TABLE_NAMES } from "../../_shared/_QueriesAndTabledDetails/TableNames.ts";
 
 //getting comment count by meme id
 export async function  getCommentCount(meme_id:string) {
     try {
      const { data, error } = await supabase
-     .from('memes')
+     .from(TABLE_NAMES.MEME_TABLE)
      .select('comment_count')
      .eq('meme_id', meme_id)
      .single(); 

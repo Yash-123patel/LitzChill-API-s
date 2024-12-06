@@ -1,17 +1,18 @@
 import supabase from "../../_shared/_config/DBConnection.ts";
-import { ContestModelImpl } from "../../_model/_contestModules/ContestModel.ts";
+import { ContestModel} from "../../_model/_contestModules/ContestModel.ts";
 import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
+import { TABLE_NAMES } from "../../_shared/_QueriesAndTabledDetails/TableNames.ts";
 
 //updating existing contest by its id where status is not deleted
-export async function updateContestById(contestData: Partial<ContestModelImpl>) {
+export async function updateContestById(contestData: Partial<ContestModel>) {
        
     try {
-        console.log(contestData.contest_id);
+        console.log(contestData.contestid);
         
         const{data:updatedContest,error}=await supabase
-                .from('contest')
+                .from(TABLE_NAMES.CONTEST_TABLE)
                 .update(contestData)
-                .eq('contest_id', contestData.contest_id)
+                .eq('contest_id', contestData.contestid)
                 .neq('status',"deleted").select();
 
                if(error){

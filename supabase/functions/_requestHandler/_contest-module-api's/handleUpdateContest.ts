@@ -1,4 +1,4 @@
-import { ContestModelImpl } from "../../_model/_contestModules/ContestModel.ts";
+import { ContestModel } from "../../_model/_contestModules/ContestModel.ts";
 import { handleAllErrors } from "../../_errorHandler/ErrorsHandler.ts";
 import { V4 } from "https://deno.land/x/uuid@v0.1.2/mod.ts";
 import { updateContestById } from "../../_repository/_contest-api-repo/UpdateContestDetails.ts";
@@ -31,7 +31,7 @@ export async function updateContestDetails(req: Request) {
         }
 
         // Get contest details from the request body
-        const contestDetails: Partial<ContestModelImpl> = await req.json();
+        const contestDetails: Partial<ContestModel> = await req.json();
         console.log("Received contest details for update:", contestDetails);
 
         // Check if the request body is empty
@@ -45,7 +45,7 @@ export async function updateContestDetails(req: Request) {
         }
 
         // Assign contest_id to the request body
-        contestDetails.contest_id = contest_id;
+        contestDetails.contestid = contest_id;
 
         // Validate the contest details
         const validationErrors = validateContestDetails(contestDetails, true);
@@ -55,7 +55,7 @@ export async function updateContestDetails(req: Request) {
         }
 
         // Set the updated_at field
-        contestDetails.updated_at = new Date().toISOString();
+        contestDetails.updatedat = new Date().toISOString();
         console.log(`Updating contest ID: ${contest_id} with details: ${JSON.stringify(contestDetails)}`);
 
         const updatedData = await updateContestById(contestDetails);

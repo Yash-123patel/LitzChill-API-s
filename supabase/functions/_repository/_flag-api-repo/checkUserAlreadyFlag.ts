@@ -1,11 +1,12 @@
 import supabase from "../../_shared/_config/DBConnection.ts";
 import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
+import { TABLE_NAMES } from "../../_shared/_QueriesAndTabledDetails/TableNames.ts";
 //check if user already added falged
 export async function userAlreadyFlag(user_id:string) {
     
     try {
         const{data:flagData,error}=await supabase
-          .from('flag')
+          .from(TABLE_NAMES.FLAG_TABLE)
           .select('*')
           .eq('user_id',user_id);
 

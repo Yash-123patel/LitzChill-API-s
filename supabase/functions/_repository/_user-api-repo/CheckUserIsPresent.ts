@@ -1,11 +1,12 @@
 import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 import supabase from "../../_shared/_config/DBConnection.ts";
+import { TABLE_NAMES } from "../../_shared/_QueriesAndTabledDetails/TableNames.ts";
 
 //checking user id is present or not
 export async function checkUserId(user_Id: string) {
     try {
       const { data: userData, error } = await supabase
-        .from('users')
+        .from(TABLE_NAMES.USER_TABLE)
         .select('*')
         .eq('user_id', user_Id);
 
