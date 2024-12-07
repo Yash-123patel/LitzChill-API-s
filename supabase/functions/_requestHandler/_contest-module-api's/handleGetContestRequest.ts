@@ -8,12 +8,11 @@ import { CONTEST_VALIDATION_MESSAGES } from "../../_shared/_commonValidationMess
 import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 import { handleAllSuccessResponse } from "../../_successHandler/CommonSuccessResponse.ts";
 
-export async function getContestById(req: Request) {
+export async function handlegetContestById(req: Request,params: string) {
     try {
-        // Extract contest_id from the URL
-        const url = new URL(req.url);
-        const path = url.pathname.split("/");
-        const contest_id = path[path.length - 1];
+        console.log(params);
+        const contest_id =params;
+
 
         console.log(`Received request to get contest with ID: ${contest_id}`);
 

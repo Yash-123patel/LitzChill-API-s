@@ -11,12 +11,9 @@ import { CONTEST_MODULE_SUCCESS_MESSAGES } from "../../_shared/_commonSuccessMes
 import { CONTEST_VALIDATION_MESSAGES } from "../../_shared/_commonValidationMessages/ValidationMessages.ts";
 import { handleAllSuccessResponse } from "../../_successHandler/CommonSuccessResponse.ts";
 
-export async function updateContestDetails(req: Request) {
+export async function handleupdateContestDetails(req: Request,params: string) {
     try {
-        // Extract contest_id from the URL path
-        const url = new URL(req.url);
-        const path = url.pathname.split("/");
-        const contest_id = path[path.length - 1];
+        const contest_id =params;
 
         console.log(`Received request to update contest with ID: ${contest_id}`);
 
@@ -45,7 +42,7 @@ export async function updateContestDetails(req: Request) {
         }
 
         // Assign contest_id to the request body
-        contestDetails.contestid = contest_id;
+        contestDetails.contest_id = contest_id;
 
         // Validate the contest details
         const validationErrors = validateContestDetails(contestDetails, true);
@@ -55,7 +52,7 @@ export async function updateContestDetails(req: Request) {
         }
 
         // Set the updated_at field
-        contestDetails.updatedat = new Date().toISOString();
+        contestDetails.updated_at = new Date().toISOString();
         console.log(`Updating contest ID: ${contest_id} with details: ${JSON.stringify(contestDetails)}`);
 
         const updatedData = await updateContestById(contestDetails);

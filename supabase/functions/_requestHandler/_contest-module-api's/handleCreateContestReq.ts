@@ -8,7 +8,7 @@ import { CONTEST_MODULE_ERROR_MESSAGES } from "../../_shared/_commonErrorMessage
 import { CONTEST_MODULE_SUCCESS_MESSAGES } from "../../_shared/_commonSuccessMessages/SuccessMessages.ts";
 import { handleAllSuccessResponse } from "../../_successHandler/CommonSuccessResponse.ts";
 
-export async function createContext(req: Request):Promise<Response> {
+export async function handleCreateContext(req: Request):Promise<Response> {
     try {
         // Parsing the request body to get the contest details
         const contestData :ContestModel= await req.json();
@@ -35,7 +35,7 @@ export async function createContext(req: Request):Promise<Response> {
             return validationErrors;
         }
 
-        contestData.createdat = new Date().toISOString();
+        contestData.created_at = new Date().toISOString();
         contestData.status = contestData.status?.toLocaleLowerCase();
 
         const insertedData = await createContest(contestData);

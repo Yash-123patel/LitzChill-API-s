@@ -1,14 +1,14 @@
 export const CONTEST_ROUTES = {
-    CONTEST_CREATE_PATH: "/ContestModule",
+    CONTEST_CREATE_PATH: "/ContestModule/createContest",
     CONTEST_GET_ALL_PATH: "/ContestModule/getAllContest",
-    CONTEST_GET_BY_ID_PATH: "/ContestModule/getById/:id",
-    CONTEST_UPDATE_BY_ID_PATH: "/ContestModule/updateById/:id",
-    CONTEST_DELETE_BY_ID_PATH: "/ContestModule/deleteById/:id",
+    CONTEST_GET_BY_ID_PATH: "/ContestModule/getContestById/:id",
+    CONTEST_UPDATE_BY_ID_PATH: "/ContestModule/updateContestById/:id",
+    CONTEST_DELETE_BY_ID_PATH: "/ContestModule/deleteContestById/:id",
 }
 
 export const COMMENT_ROUTES = {
     COMMENT_ADD_PATH: "/CommentAPI",
-    COMMENT_DELETE_BY_ID_PATH: "/CommentAPI/deleteComment/:id"
+    COMMENT_DELETE_BY_ID_PATH: "/CommentAPI/:id"
 }
 
 export const FLAG_ROUTES = {

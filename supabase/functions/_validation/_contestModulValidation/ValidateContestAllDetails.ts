@@ -10,10 +10,12 @@ export function validateContestDetails(contestDetails: Partial<ContestModel>, is
     const currentDate = new Date();
     
     // Validating contest title
-    if (contestDetails.contesttitle) {
+    console.log(contestDetails.contest_title); 
+    if (contestDetails.contest_title) {
+       
         console.log("Validating contest title...");
 
-        if (contestDetails.contesttitle.trim().length < 3 || contestDetails.contesttitle.trim().length > 100) {
+        if (contestDetails.contest_title.trim().length < 3 || contestDetails.contest_title.trim().length > 100) {
             
             console.log("Invalid contest title length: Title must be between 3 and 100 characters.");
             validationErrors.push(CONTEST_VALIDATION_MESSAGES.INVALID_CONTEST_TITLE);
@@ -24,10 +26,10 @@ export function validateContestDetails(contestDetails: Partial<ContestModel>, is
     }
 
     // Validating contest description
-    if (contestDetails.contestdescription) {
+    if (contestDetails.description) {
         console.log("Validating contest description...");
 
-        if (contestDetails.contestdescription.trim().length < 8 || contestDetails.contestdescription.trim().length > 500) {
+        if (contestDetails.description.trim().length < 8 || contestDetails.description.trim().length > 500) {
            
             console.log("Invalid contest description length: Description must be between 8 and 500 characters.");
             validationErrors.push(CONTEST_VALIDATION_MESSAGES.INVALID_CONTEST_DESCRIPTION);
@@ -35,16 +37,16 @@ export function validateContestDetails(contestDetails: Partial<ContestModel>, is
     }
 
     // Validating contest start_date
-    if (contestDetails.startdate) {
+    if (contestDetails.start_date) {
         console.log("Validating contest start date...");
 
-        if (!isValidISODate(contestDetails.startdate)) {
+        if (!isValidISODate(contestDetails.start_date)) {
            
             console.log("Invalid start date format.");
             validationErrors.push(CONTEST_VALIDATION_MESSAGES.INVALID_CONTEST_START_DATE_FORMAT);
         } else {
            
-            const start_date = new Date(contestDetails.startdate);
+            const start_date = new Date(contestDetails.start_date);
             if (start_date <= currentDate) {
                 console.log("Start date cannot be in the past.");
                 validationErrors.push(CONTEST_VALIDATION_MESSAGES.INVALID_CONTEST_START_DATE);
@@ -56,24 +58,24 @@ export function validateContestDetails(contestDetails: Partial<ContestModel>, is
     }
 
     // Validating contest end_date
-    if (contestDetails.enddate) {
+    if (contestDetails.end_date) {
         console.log("Validating contest end date...");
 
-        if (!isValidISODate(contestDetails.enddate)) {
+        if (!isValidISODate(contestDetails.end_date)) {
            
             console.log("Invalid end date format.");
             validationErrors.push(CONTEST_VALIDATION_MESSAGES.INVALID_CONTEST_END_DATE_FORMAT);
         } else {
            
-            const end_date = new Date(contestDetails.enddate);
+            const end_date = new Date(contestDetails.end_date);
             if (end_date <= currentDate) {
               
                 console.log("End date cannot be in the past.");
                 validationErrors.push(CONTEST_VALIDATION_MESSAGES.INVALID_END_DATE);
             }
-            if (contestDetails.startdate && isValidISODate(contestDetails.startdate)) {
+            if (contestDetails.start_date && isValidISODate(contestDetails.start_date)) {
               
-                const start_date = new Date(contestDetails.startdate);
+                const start_date = new Date(contestDetails.start_date);
                 if (start_date >= end_date) {
                     console.log("End date must be after the start date.");
                     validationErrors.push(CONTEST_VALIDATION_MESSAGES.INVALID_CONTEST_END_DATE);

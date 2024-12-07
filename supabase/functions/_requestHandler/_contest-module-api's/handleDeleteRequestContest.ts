@@ -10,12 +10,11 @@ import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorM
 import { CONTEST_VALIDATION_MESSAGES } from "../../_shared/_commonValidationMessages/ValidationMessages.ts";
 import { handleAllSuccessResponse } from "../../_successHandler/CommonSuccessResponse.ts";
 
-export async function handleDeleteContest(req: Request) {
+export async function handleDeleteContest(req: Request,params: string) {
    try {
-      // Extracting the contest ID from the URL path
-      const url = new URL(req.url);
-      const path = url.pathname.split("/");
-      const contest_id = path[path.length - 1];
+     
+      console.log(params);
+      const contest_id =params;
 
       // Validate contest ID
       if (!contest_id || !V4.isValid(contest_id)) {

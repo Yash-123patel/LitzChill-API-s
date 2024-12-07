@@ -7,7 +7,7 @@ import { CONTEST_MODULE_SUCCESS_MESSAGES } from "../../_shared/_commonSuccessMes
 import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 import { handleAllSuccessResponse } from "../../_successHandler/CommonSuccessResponse.ts";
 
-export async function getAllContest(req: Request) {
+export async function handlegetAllContest(req: Request) {
     try {
         req;
         // Fetch all contest data from the repository

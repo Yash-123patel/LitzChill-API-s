@@ -1,15 +1,13 @@
 //contest module
-export interface ContestModel {
-    contestid?: string;  
-    contesttitle: string;
-    contestdescription?: string;
-    startdate: string;
-    enddate: string;
+ export interface ContestModel {
+    contest_id?: string;  
+    contest_title: string;
+    description?: string;
+    start_date: string;
+    end_date: string;
     status?: string;
     result?: object;
     prize?: string;
-    createdat: string;
-    updatedat?: string;
+    created_at: string;
+    updated_at?: string;
 }
-
-

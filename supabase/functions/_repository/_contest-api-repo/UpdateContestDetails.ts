@@ -7,12 +7,12 @@ import { TABLE_NAMES } from "../../_shared/_QueriesAndTabledDetails/TableNames.t
 export async function updateContestById(contestData: Partial<ContestModel>) {
        
     try {
-        console.log(contestData.contestid);
+        console.log(contestData.contest_id);
         
         const{data:updatedContest,error}=await supabase
                 .from(TABLE_NAMES.CONTEST_TABLE)
                 .update(contestData)
-                .eq('contest_id', contestData.contestid)
+                .eq('contest_id', contestData.contest_id)
                 .neq('status',"deleted").select();
 
                if(error){
