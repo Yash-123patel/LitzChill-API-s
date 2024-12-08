@@ -7,10 +7,10 @@ export const CONTEST_ROUTES = {
 }
 
 export const COMMENT_ROUTES = {
-    COMMENT_ADD_PATH: "/CommentAPI",
-    COMMENT_DELETE_BY_ID_PATH: "/CommentAPI/:id"
+    COMMENT_ADD_PATH: "/CommentAPI/addComment",
+    COMMENT_DELETE_BY_ID_PATH: "/CommentAPI/deleteComment/:id"
 }
 
 export const FLAG_ROUTES = {
-    ADD_FLAG_TO_MEME: "/FlagAPI"
+    ADD_FLAG_TO_MEME: "/FlagAPI/addFlag"
 }

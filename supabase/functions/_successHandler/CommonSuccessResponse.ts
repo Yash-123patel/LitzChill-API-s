@@ -8,7 +8,7 @@ export function handleAllSuccessResponse(message: string, data?: any, statusCode
 
     const responseBody = data ? { message, data } : { message };
     return new Response(
-        JSON.stringify(responseBody),
+        JSON.stringify({statusCode,responseBody}),
         {
             status: statusCode,
             headers: { [HEADER_CONTENT_TYPE.CONTENT_TYPE_HEADING]:HEADER_CONTENT_TYPE.CONTENT_TYPE_VALUE},

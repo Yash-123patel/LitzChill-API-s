@@ -1,15 +1,14 @@
-import { ContestModel } from "../../_model/_contestModules/ContestModel.ts";
-import { handleAllErrors } from "../../_errorHandler/ErrorsHandler.ts";
+import { ContestModel } from "../../_model/ContestModel.ts";
+import { handleAllErrors, handleDatabaseError } from "../../_errorHandler/ErrorsHandler.ts";
 import { V4 } from "https://deno.land/x/uuid@v0.1.2/mod.ts";
-import { updateContestById } from "../../_repository/_contest-api-repo/UpdateContestDetails.ts";
 import { HTTP_STATUS_CODE } from "../../_shared/_constant/HttpStatusCodes.ts";
 import { validateContestDetails } from "../../_validation/_contestModulValidation/ValidateContestAllDetails.ts";
-
 import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 import { CONTEST_MODULE_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 import { CONTEST_MODULE_SUCCESS_MESSAGES } from "../../_shared/_commonSuccessMessages/SuccessMessages.ts";
 import { CONTEST_VALIDATION_MESSAGES } from "../../_shared/_commonValidationMessages/ValidationMessages.ts";
 import { handleAllSuccessResponse } from "../../_successHandler/CommonSuccessResponse.ts";
+import { updateContestById } from "../../_QueriesAndTabledDetails/ContestModuleQueries.ts";
 
 export async function handleupdateContestDetails(req: Request,params: string) {
     try {
@@ -31,50 +30,45 @@ export async function handleupdateContestDetails(req: Request,params: string) {
         const contestDetails: Partial<ContestModel> = await req.json();
         console.log("Received contest details for update:", contestDetails);
 
-        // Check if the request body is empty
-        if (Object.keys(contestDetails).length === 0) {
-            console.error("Empty request body");
-            return handleAllErrors({
-                status_code: HTTP_STATUS_CODE.BAD_REQUEST,
-                error_message: COMMON_ERROR_MESSAGES.EMPTY_REQUEST_BODY,
-                error_time: new Date(),
-            });
-        }
-
-        // Assign contest_id to the request body
-        contestDetails.contest_id = contest_id;
-
         // Validate the contest details
         const validationErrors = validateContestDetails(contestDetails, true);
+
         if (validationErrors instanceof Response) {
             console.error("Validation failed:", validationErrors);
             return validationErrors;
         }
 
-        // Set the updated_at field
+        
+        contestDetails.contest_id = contest_id;
         contestDetails.updated_at = new Date().toISOString();
-        console.log(`Updating contest ID: ${contest_id} with details: ${JSON.stringify(contestDetails)}`);
 
-        const updatedData = await updateContestById(contestDetails);
+        //calling update contest query
+        const {updatedContest,error} = await updateContestById(contestDetails);
 
-        // If no data is updated, return an error
-        if (!updatedData || updatedData.length == 0) {
-            console.error(`No contest found for ID: ${contest_id} or it was already deleted`);
+        //returning error response if any database error come
+        if(error){
+            console.log("Database Error during updating contest data",error);
+            return handleDatabaseError(error.message);
+        }
+
+        // If contest not found with id or no data is updated, return an error
+        if (!updatedContest || updatedContest.length == 0) {
+            console.error(`No contest found for ID: ${contest_id} or it was deleted`);
             return handleAllErrors({
-                status_code: HTTP_STATUS_CODE.NOT_FOUND,
-                error_message: CONTEST_MODULE_ERROR_MESSAGES.CONTEST_NOT_FOUND_OR_DELETED,
-                error_time: new Date(),
+                 status_code: HTTP_STATUS_CODE.NOT_FOUND,
+                 error_message: CONTEST_MODULE_ERROR_MESSAGES.CONTEST_NOT_FOUND_OR_DELETED,
+                 error_time: new Date(),
             });
         }
 
         // Return the updated contest details
-        console.log("Contest updated successfully:", updatedData);
+        console.log("Contest updated successfully:", updatedContest);
         
-        return  handleAllSuccessResponse(CONTEST_MODULE_SUCCESS_MESSAGES.CONTEST_UPDATED,updatedData);
+        return  handleAllSuccessResponse(CONTEST_MODULE_SUCCESS_MESSAGES.CONTEST_UPDATED,updatedContest);
        
     } catch (error) {
         // internal server response
-        console.error("Unexpected error during contest update:", error);
+        console.error("Internal  error during contest update:", error);
         return handleAllErrors({
             status_code: HTTP_STATUS_CODE.NOT_FOUND,
             error_message: `${COMMON_ERROR_MESSAGES.INTERNAL_SERVER_ERROR} ${error}`,

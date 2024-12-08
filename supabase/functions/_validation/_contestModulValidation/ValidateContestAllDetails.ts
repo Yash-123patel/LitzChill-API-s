@@ -1,15 +1,27 @@
 import { handleAllErrors } from "../../_errorHandler/ErrorsHandler.ts";
-import { ContestModel } from "../../_model/_contestModules/ContestModel.ts";
+import { ContestModel } from "../../_model/ContestModel.ts";
 import { HTTP_STATUS_CODE } from "../../_shared/_constant/HttpStatusCodes.ts";
 import { ArrayContstant } from "../../_shared/_constant/ArrayConstants.ts";
 import { CONTEST_VALIDATION_MESSAGES } from "../../_shared/_commonValidationMessages/ValidationMessages.ts";
+import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 
 
 export function validateContestDetails(contestDetails: Partial<ContestModel>, isUpdate: boolean = false) {
     const validationErrors: string[] = [];
     const currentDate = new Date();
+
+    //checking for empty body if body empty, directlly returning error responses
+    if (Object.keys(contestDetails).length === 0) {
+        console.log("Error: Empty request body.");
+        return handleAllErrors({
+            status_code: HTTP_STATUS_CODE.BAD_REQUEST,
+            error_message: COMMON_ERROR_MESSAGES.EMPTY_REQUEST_BODY,
+            error_time: new Date(),
+        });
+    }
+
     
-    // Validating contest title
+    // Validating contest title if invalid title pushing the error message in error array
     console.log(contestDetails.contest_title); 
     if (contestDetails.contest_title) {
        

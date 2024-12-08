@@ -1,19 +1,18 @@
-import { handleAllErrors } from "../../_errorHandler/ErrorsHandler.ts";
+import { handleAllErrors, handleDatabaseError } from "../../_errorHandler/ErrorsHandler.ts";
 import { V4 } from "https://deno.land/x/uuid@v0.1.2/mod.ts";
 import { HTTP_STATUS_CODE } from "../../_shared/_constant/HttpStatusCodes.ts";
-
-import { deleteContestById } from "../../_repository/_contest-api-repo/DeleteContestById.ts";
 import { CONTEST_MODULE_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 import { CONTEST_MODULE_SUCCESS_MESSAGES } from "../../_shared/_commonSuccessMessages/SuccessMessages.ts";
-
 import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 import { CONTEST_VALIDATION_MESSAGES } from "../../_shared/_commonValidationMessages/ValidationMessages.ts";
 import { handleAllSuccessResponse } from "../../_successHandler/CommonSuccessResponse.ts";
+import { deleteContestById } from "../../_QueriesAndTabledDetails/ContestModuleQueries.ts";
+
 
 export async function handleDeleteContest(req: Request,params: string) {
    try {
      
-      console.log(params);
+      console.log("contest id",params);
       const contest_id =params;
 
       // Validate contest ID
@@ -27,7 +26,13 @@ export async function handleDeleteContest(req: Request,params: string) {
       }
 
       // Attempt to delete the contest by id
-      const deletedData = await deleteContestById(contest_id);
+      const {deletedData,error} = await deleteContestById(contest_id);
+
+       //returning error response if any database error come
+      if(error){
+         console.log("Database error during deleting contest data",error);
+         return handleDatabaseError(error.message);
+      }
 
       // If the contest not found or already deleted
       if (!deletedData || deletedData.length == 0) {
@@ -40,11 +45,12 @@ export async function handleDeleteContest(req: Request,params: string) {
       }
 
       // Success response if contest deletion is successful
+      console.log("Returning contest deleted success response")
       return  handleAllSuccessResponse(CONTEST_MODULE_SUCCESS_MESSAGES.CONTEST_DELETED);
 
    } catch (error) {
-      // Log unexpected errors
-      console.error("Unexpected Error:", error);
+      //handle internal server
+      console.error("Internal server erorr during deleting contest operation:", error);
       return handleAllErrors({
          status_code: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
          error_message: `${COMMON_ERROR_MESSAGES.INTERNAL_SERVER_ERROR} ${error}`,

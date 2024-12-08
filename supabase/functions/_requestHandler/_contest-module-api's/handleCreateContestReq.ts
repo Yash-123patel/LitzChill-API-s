@@ -1,56 +1,44 @@
-import { createContest } from "../../_repository/_contest-api-repo/CreateContestRepository.ts";
-import { ContestModel } from "../../_model/_contestModules/ContestModel.ts";
+import { ContestModel } from "../../_model/ContestModel.ts";
 import { handleAllErrors } from "../../_errorHandler/ErrorsHandler.ts";
 import { HTTP_STATUS_CODE } from "../../_shared/_constant/HttpStatusCodes.ts";
 import { validateContestDetails } from "../../_validation/_contestModulValidation/ValidateContestAllDetails.ts";
 import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
-import { CONTEST_MODULE_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 import { CONTEST_MODULE_SUCCESS_MESSAGES } from "../../_shared/_commonSuccessMessages/SuccessMessages.ts";
 import { handleAllSuccessResponse } from "../../_successHandler/CommonSuccessResponse.ts";
+import { createContest } from "../../_QueriesAndTabledDetails/ContestModuleQueries.ts";
 
 export async function handleCreateContext(req: Request):Promise<Response> {
     try {
         // Parsing the request body to get the contest details
         const contestData :ContestModel= await req.json();
 
-        // Check if the request body is empty
-        if (Object.keys(contestData).length === 0) {
-            console.log("Error: Empty request body.");
-            return handleAllErrors({
-                status_code: HTTP_STATUS_CODE.BAD_REQUEST,
-                error_message: COMMON_ERROR_MESSAGES.EMPTY_REQUEST_BODY,
-                error_time: new Date(),
-            });
-        }
-
-        // Creating a ContestModelImpl instance with the contest data
-     
 
         // Validating the contest details
         const validationErrors = validateContestDetails(contestData);
-        console.log("Validation Errors:", validationErrors);
+        console.log("contest Validation Errors:", validationErrors);
 
         if (validationErrors instanceof Response) {
-            // If there are validation errors, return the response
             return validationErrors;
         }
 
         contestData.created_at = new Date().toISOString();
         contestData.status = contestData.status?.toLocaleLowerCase();
 
-        const insertedData = await createContest(contestData);
+        //calling supabase query for creating contest
+        const {insertedData,error} = await createContest(contestData);
 
-        // Checking if the contest was created successfully
-        if (!insertedData || insertedData.length === 0) {
-            console.log("Error: Contest not created.");
+        //if data not inserted then returning error response
+        if(!insertedData || insertedData.length ===0||error){
+            console.log("Error: Contest not created.due to some database errro or query error",error);
             return handleAllErrors({
                 status_code: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
-                error_message: CONTEST_MODULE_ERROR_MESSAGES.CONTEST_NOT_CREATED,
+                error_message: `${COMMON_ERROR_MESSAGES.DATABASE_ERROR} ${error?.message}`,
                 error_time: new Date(),
             });
         }
 
         // Returning success response with created contest data
+        console.log("Returning success response with created contest data",insertedData);
         return handleAllSuccessResponse(
             CONTEST_MODULE_SUCCESS_MESSAGES.CONTEST_CREATED,
             insertedData,
@@ -59,7 +47,7 @@ export async function handleCreateContext(req: Request):Promise<Response> {
         
     } catch (error) {
         // handling internal errors
-        console.error("Unexpected Error:", error);
+        console.error("Internal server error in create contest", error);
         return handleAllErrors({
             status_code: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
             error_message:

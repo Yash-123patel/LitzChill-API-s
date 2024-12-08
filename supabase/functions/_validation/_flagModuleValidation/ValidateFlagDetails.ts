@@ -1,5 +1,5 @@
 import { handleAllErrors } from "../../_errorHandler/ErrorsHandler.ts";
-import { FlagModel } from "../../_model/_flagModules/FlagModel.ts";
+import { FlagModel } from "../../_model/FlagModel.ts";
 import { COMMENT_VALIDATION_MESSAGES, FLAG_VALIDATION_MESSAGES } from "../../_shared/_commonValidationMessages/ValidationMessages.ts";
 import { HTTP_STATUS_CODE } from "../../_shared/_constant/HttpStatusCodes.ts";
 import { V4 } from "https://deno.land/x/uuid@v0.1.2/mod.ts";
@@ -9,8 +9,6 @@ export function validateFlagDetails(flagDetails:FlagModel){
 
     const validationErrors: string[] = [];
 
-    
-    
   // Check for missing fields
   if (!flagDetails.user_id || !flagDetails.contentType || !flagDetails.contentId || !flagDetails.reason) {
       validationErrors.push(FLAG_VALIDATION_MESSAGES.MISSING_FIELDS);
@@ -32,6 +30,7 @@ export function validateFlagDetails(flagDetails:FlagModel){
   }
 
   //returning validation error if any error there
+  console.log("Validation Errors: ",validationErrors)
   if(validationErrors.length>0){
     return handleAllErrors({
       status_code: HTTP_STATUS_CODE.BAD_REQUEST,

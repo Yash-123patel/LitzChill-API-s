@@ -4,7 +4,7 @@ import { HTTP_STATUS_CODE } from "../_shared/_constant/HttpStatusCodes.ts"
 
 
 
-//performing routing 
+//performing static and dynamic routing and if matching than calling handler
 export async function routeHandler(req:Request,routes:Record<string,any>){
 
     //extracting method and path from url
@@ -13,18 +13,19 @@ export async function routeHandler(req:Request,routes:Record<string,any>){
     const path = url.pathname;
     console.log(`Request received in route handler - Method: ${method}, Path: ${path}`);
 
-    //finding all method routes path into single array
-    console.log("routes array",Object.values(routes));
-    const allRoutes = Object.values(routes).flatMap((methodRoutes) =>
-        Object.keys(methodRoutes)
+    //gethering all routes path into single array
+    console.log("all routes values",Object.values(routes));
+    const allRoutes = Object.values(routes).flatMap((allPresentRoutes) =>
+        Object.keys(allPresentRoutes)
       );
-      console.log("allroutes",allRoutes);
-      console.log("paths",path);
+      console.log("allroutes gethered :",allRoutes);
+      console.log("Request path: ",path);
 
       //finding all matching routes based on method
       const allMatchedMethodRoutes=routes[method];
+      console.log(allMatchedMethodRoutes);
 
-      //if method is not match is undefined then we are returning undefined
+      //if method is not match is undefined then we are returning method not allowed
       if(allMatchedMethodRoutes==undefined){
         return handleAllErrors({
           status_code:HTTP_STATUS_CODE.METHOD_NOT_ALLOWED,
@@ -37,7 +38,7 @@ export async function routeHandler(req:Request,routes:Record<string,any>){
       console.log("include",allRoutes.includes(path));
       if(allRoutes.includes(path)){
         console.log("if executed");
-        //we are calling correct method for that path or not
+        //we are calling correct method for that path or not for static route
           if (!allMatchedMethodRoutes || !allMatchedMethodRoutes?.[path]) {
                  console.error(`Method '${method}' not allowed for route '${path}'`);
                  return handleAllErrors({
@@ -54,8 +55,9 @@ export async function routeHandler(req:Request,routes:Record<string,any>){
             return await allMatchedMethodRoutes[path](req);
         }
 
-          //checking for dyanamic route matching 
+        //checking for dyanamic route matching 
         for (const routePattern in allMatchedMethodRoutes) {
+            //calling extractparam function and get param value from path
             const param = extractParameter(routePattern, path);
             if (param) {
               const {id}=param;
@@ -93,7 +95,6 @@ export function extractParameter(routePattern: string, path: string) {
 
       // Return null if path lengths do not match
         if (routePath.length !== actualPath.length) {
-         console.log("Route pattern and actual path lengths not match.");
          return null;
         }
 

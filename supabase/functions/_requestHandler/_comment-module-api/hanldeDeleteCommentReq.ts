@@ -1,21 +1,16 @@
-import { handleAllErrors } from "../../_errorHandler/ErrorsHandler.ts";
+import { handleAllErrors, handleDatabaseError } from "../../_errorHandler/ErrorsHandler.ts";
 import { V4 } from "https://deno.land/x/uuid@v0.1.2/mod.ts";
-import { checkCommentId, deleteComment } from "../../_repository/_comment-api-repo/deletecomment.ts";
 import { HTTP_STATUS_CODE } from "../../_shared/_constant/HttpStatusCodes.ts";
-
-import { Comment } from "../../_model/_commentModules/CommentModel.ts";
 import { COMMENT_MODULE_SUCCESS_MESSAGES } from "../../_shared/_commonSuccessMessages/SuccessMessages.ts";
 import { COMMENT_MODULE_ERROR_MESSAGES, COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
-import { getCommentCount } from "../../_repository/_meme-api-repo/getCommentCount.ts";
-import { updateCommentsCount } from "../../_repository/_meme-api-repo/UpdateCommentCount.ts";
 import { handleAllSuccessResponse } from "../../_successHandler/CommonSuccessResponse.ts";
+import { deleteComment, getCommentById } from "../../_QueriesAndTabledDetails/CommentModuleQueries.ts";
+import { updateCommentsCount } from "../../_QueriesAndTabledDetails/MemeModuleQueries.ts";
 
-export async function handleDeleteComment(req: Request){
+export async function handleDeleteComment(req: Request,param:string){
     try {
-        // Extracting commentId from the URL path
-        const url = new URL(req.url);
-        const path = url.pathname.split("/");
-        const commentId = path[path.length - 1];
+        
+        const commentId = param;
 
         // Checking if commentId is provided
         if (!commentId) {
@@ -37,9 +32,16 @@ export async function handleDeleteComment(req: Request){
             });
         }
 
-        // Checking if the comment exists in the database
-        const dataFromRepo = await checkCommentId(commentId);
-        if (!dataFromRepo || dataFromRepo.length === 0) {
+        // Checking if the comment exists in the database 
+        const {commentData,commenterror} = await getCommentById(commentId);
+
+       //returning error response if any database error come
+        if(commenterror){
+            console.log("Database error during getting comment data",commenterror);
+            return handleDatabaseError(commenterror.message);
+        }
+     
+        if (!commentData || commentData.length === 0) {
             console.log(`Error: Comment with ID ${commentId} not found.`);
             return handleAllErrors({
                 status_code: HTTP_STATUS_CODE.NOT_FOUND,
@@ -48,33 +50,27 @@ export async function handleDeleteComment(req: Request){
             });
         }
 
-        // Preparing the comment data object
-        const commentData: Comment = {
-            commentid: dataFromRepo[0].comment_id,
-            memeid: dataFromRepo[0].meme_id,
-            userid: dataFromRepo[0].user_id,
-            commentmessage: dataFromRepo[0].comment,
-            status: dataFromRepo[0].status,
-            createdat: dataFromRepo[0].created_at,
-        };
+        const commentCountOnMeme = commentData[0].memes.comment_count;
 
-        // Fetching the current comment count for the meme associated with the comment
-        const commentCount = await getCommentCount(commentData.memeid);
-        if (!commentCount) {
-            console.log("Error: Failed to retrieve current comment count.");
-            throw new Error(COMMENT_MODULE_ERROR_MESSAGES.FAILED_TO_RETRIEVE_COMMENT_COUNT);
-        }
-
+        console.log("CommentData"+commentData);
+        console.log("Valued",Object.values(commentData));
+        console.log("Key",Object.keys(commentData));
+       
         // Deleting the comment from the database
-        await deleteComment(commentId);
-        console.log(`Comment with ID ${commentId} successfully deleted.`);
+        const {error}=await deleteComment(commentId);
+
+        //returning error response if any database error come
+       if(error){
+          console.log("Database error during deleting  comment",commenterror);
+          return handleDatabaseError(error.message);
+       }
 
         // Updating the comment count in the meme table
-        await updateCommentsCount(commentData.memeid, commentCount.comment_count - 1);
-        console.log(`Updated comment count for meme_id ${commentData.memeid}: ${commentCount.comment_count - 1}`);
+       const {counterror} =await updateCommentsCount(commentData[0].meme_id,commentCountOnMeme-1);
+       if(counterror)
+            return handleDatabaseError(counterror.message);
 
         // Sending a successful response after deletion
-
        return handleAllSuccessResponse(COMMENT_MODULE_SUCCESS_MESSAGES.COMMENT_DELETED);
         
     } catch (error) {
