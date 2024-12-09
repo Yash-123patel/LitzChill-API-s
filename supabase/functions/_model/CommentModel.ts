@@ -7,5 +7,6 @@ export interface Comment {
     comment: string;  
     created_at?: Date;    
     status?: string;
+    parent_commentId?:any
   }
   

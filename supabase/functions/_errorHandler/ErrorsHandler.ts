@@ -9,7 +9,7 @@ export function handleAllErrors(error: ErrorResponse) {
         JSON.stringify({
             status_code: error.status_code,
             error_message: error.error_message,
-            error_time: error.error_time,
+            error_time:new Date(),
         }),
         { 
             status: error.status_code, 

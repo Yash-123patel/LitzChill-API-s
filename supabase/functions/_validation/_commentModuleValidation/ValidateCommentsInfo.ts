@@ -3,6 +3,21 @@ import { handleAllErrors } from "../../_errorHandler/ErrorsHandler.ts";
 import { HTTP_STATUS_CODE } from "../../_shared/_constant/HttpStatusCodes.ts";
 import { ArrayContstant } from "../../_shared/_constant/ArrayConstants.ts";
 import { COMMENT_VALIDATION_MESSAGES } from "../../_shared/_commonValidationMessages/ValidationMessages.ts";
+import { COMMENT_MODULE_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
+
+
+export function validateCommentId(comment_id:string){
+  if (!comment_id||  !V4.isValid(comment_id)) {
+    console.log("Error: Missing commentId in the request.");
+    return handleAllErrors({
+       status_code: HTTP_STATUS_CODE.BAD_REQUEST,
+       error_message: COMMENT_MODULE_ERROR_MESSAGES.INVALID_COMMENT_ID,
+       
+    });
+ 
+}
+}
+
 
 export function validateCommentDetails({
   user_id,
@@ -49,7 +64,7 @@ export function validateCommentDetails({
     return handleAllErrors({
       status_code: HTTP_STATUS_CODE.BAD_REQUEST,
       error_message: errorMessages.join(", "), // Combine all error messages
-      error_time: new Date(),
+     
     });
   }
 

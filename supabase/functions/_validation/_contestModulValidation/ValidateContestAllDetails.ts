@@ -4,11 +4,24 @@ import { HTTP_STATUS_CODE } from "../../_shared/_constant/HttpStatusCodes.ts";
 import { ArrayContstant } from "../../_shared/_constant/ArrayConstants.ts";
 import { CONTEST_VALIDATION_MESSAGES } from "../../_shared/_commonValidationMessages/ValidationMessages.ts";
 import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
+import { V4 } from "https://deno.land/x/uuid@v0.1.2/mod.ts";
 
+
+export function validateContestId(contest_id:string){
+    if (!contest_id || !V4.isValid(contest_id)) {
+        console.log("Error: Invalid or missing contest ID.");
+        return handleAllErrors({
+           status_code: HTTP_STATUS_CODE.BAD_REQUEST,
+           error_message: CONTEST_VALIDATION_MESSAGES.INVALID_CONTEST_ID,
+         
+        });
+     }
+     return {};
+    }
 
 export function validateContestDetails(contestDetails: Partial<ContestModel>, isUpdate: boolean = false) {
     const validationErrors: string[] = [];
-    const currentDate = new Date();
+  
 
     //checking for empty body if body empty, directlly returning error responses
     if (Object.keys(contestDetails).length === 0) {
@@ -16,7 +29,7 @@ export function validateContestDetails(contestDetails: Partial<ContestModel>, is
         return handleAllErrors({
             status_code: HTTP_STATUS_CODE.BAD_REQUEST,
             error_message: COMMON_ERROR_MESSAGES.EMPTY_REQUEST_BODY,
-            error_time: new Date(),
+          
         });
     }
 
@@ -56,14 +69,7 @@ export function validateContestDetails(contestDetails: Partial<ContestModel>, is
            
             console.log("Invalid start date format.");
             validationErrors.push(CONTEST_VALIDATION_MESSAGES.INVALID_CONTEST_START_DATE_FORMAT);
-        } else {
-           
-            const start_date = new Date(contestDetails.start_date);
-            if (start_date <= currentDate) {
-                console.log("Start date cannot be in the past.");
-                validationErrors.push(CONTEST_VALIDATION_MESSAGES.INVALID_CONTEST_START_DATE);
-            }
-        }
+        } 
     } else if (!isUpdate) {
         console.log("Contest start date is missing.");
         validationErrors.push(CONTEST_VALIDATION_MESSAGES.MISSING_CONTEST_START_DATE);
@@ -80,11 +86,7 @@ export function validateContestDetails(contestDetails: Partial<ContestModel>, is
         } else {
            
             const end_date = new Date(contestDetails.end_date);
-            if (end_date <= currentDate) {
-              
-                console.log("End date cannot be in the past.");
-                validationErrors.push(CONTEST_VALIDATION_MESSAGES.INVALID_END_DATE);
-            }
+           
             if (contestDetails.start_date && isValidISODate(contestDetails.start_date)) {
               
                 const start_date = new Date(contestDetails.start_date);
@@ -116,18 +118,18 @@ export function validateContestDetails(contestDetails: Partial<ContestModel>, is
         contestDetails.status = ArrayContstant.CONTEST_STATUS[0].toLocaleLowerCase();
     }
 
+    console.log(validationErrors);
+
     // Returning validation errors if any
     if (validationErrors.length > 0) {
         console.log("Validation failed with the following errors:", validationErrors);
         return handleAllErrors({
             status_code: HTTP_STATUS_CODE.BAD_REQUEST,
             error_message: validationErrors.join(", "), // Combine all error messages
-            error_time: new Date(),
+           
         });
     }
 
-    // Validation passed
-    console.log("Contest details validated successfully.");
     return {};
 }
 

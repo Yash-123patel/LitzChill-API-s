@@ -1,5 +1,4 @@
-
-//Common Success Messages For All Modules.
+//content type and content value
 export const HEADER_CONTENT_TYPE= {
 
      CONTENT_TYPE_HEADING:"Content-Type",

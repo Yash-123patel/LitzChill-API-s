@@ -13,7 +13,6 @@ export const COMMON_ERROR_MESSAGES={
 
 //comment Module All Error Messages
 export const COMMENT_MODULE_ERROR_MESSAGES = {
-    MISSING_COMMENT_ID: "Comment ID is required. Please provide a valid Comment ID to proceed.",
     INVALID_COMMENT_ID: "Invalid Comment ID. Ensure you're using a valid UUID format for the Comment ID.",
     USER_NOT_FOUND: "User not found with the provided ID. Double-check the User ID and try again.",
     CONTENT_NOT_FOUND: "Content not found with this ID. Please ensure the content exists and try again.",

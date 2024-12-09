@@ -5,10 +5,19 @@ import { CONTEST_MODULE_SUCCESS_MESSAGES } from "../../_shared/_commonSuccessMes
 import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 import { handleAllSuccessResponse } from "../../_successHandler/CommonSuccessResponse.ts";
 import { getAllContestDetails } from "../../_QueriesAndTabledDetails/ContestModuleQueries.ts";
+import { checkPrivillege } from "../../_middleware/CheckAuthorization.ts";
+import { USER_ROLES } from "../../_shared/_constant/UserRoles.ts";
 
 export async function handlegetAllContest(req: Request) {
     try {
-        req;
+
+        
+        const userPrivlliege=await checkPrivillege(req,[USER_ROLES.ADMIN_ROLE,USER_ROLES.USER_ROLE]);
+
+        if(userPrivlliege instanceof Response){
+            return userPrivlliege;
+        }
+
         // Fetching all contests data from database
         const {contestData,error} = await getAllContestDetails();
 
@@ -24,7 +33,7 @@ export async function handlegetAllContest(req: Request) {
             return handleAllErrors({
                 status_code: HTTP_STATUS_CODE.NOT_FOUND,
                 error_message: CONTEST_MODULE_ERROR_MESSAGES.NO_CONTEST_FOUND,
-                error_time: new Date(),
+               
             });
         }
 
@@ -38,7 +47,7 @@ export async function handlegetAllContest(req: Request) {
         return handleAllErrors({
             status_code: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
             error_message: `${COMMON_ERROR_MESSAGES.INTERNAL_SERVER_ERROR} ${error}`,
-            error_time: new Date(),
+            
         });
     }
 }

@@ -1,11 +1,21 @@
 import { handleAllErrors } from "../../_errorHandler/ErrorsHandler.ts";
 import { FlagModel } from "../../_model/FlagModel.ts";
+import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 import { COMMENT_VALIDATION_MESSAGES, FLAG_VALIDATION_MESSAGES } from "../../_shared/_commonValidationMessages/ValidationMessages.ts";
 import { HTTP_STATUS_CODE } from "../../_shared/_constant/HttpStatusCodes.ts";
 import { V4 } from "https://deno.land/x/uuid@v0.1.2/mod.ts";
 
 
+
 export function validateFlagDetails(flagDetails:FlagModel){
+  if (Object.keys(flagDetails).length == 0) {
+    console.log("Empty request body");
+    return handleAllErrors({
+        status_code: HTTP_STATUS_CODE.BAD_REQUEST,
+        error_message: COMMON_ERROR_MESSAGES.EMPTY_REQUEST_BODY,
+        
+    });
+}
 
     const validationErrors: string[] = [];
 
@@ -35,7 +45,7 @@ export function validateFlagDetails(flagDetails:FlagModel){
     return handleAllErrors({
       status_code: HTTP_STATUS_CODE.BAD_REQUEST,
       error_message: validationErrors.join(", "),  
-      error_time: new Date(),
+    
     });
   }
 

@@ -1,29 +1,33 @@
 import { handleAllErrors, handleDatabaseError } from "../../_errorHandler/ErrorsHandler.ts";
-import { V4 } from "https://deno.land/x/uuid@v0.1.2/mod.ts";
 import { HTTP_STATUS_CODE } from "../../_shared/_constant/HttpStatusCodes.ts";
 import { CONTEST_MODULE_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
 import { CONTEST_MODULE_SUCCESS_MESSAGES } from "../../_shared/_commonSuccessMessages/SuccessMessages.ts";
 import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorMessages.ts";
-import { CONTEST_VALIDATION_MESSAGES } from "../../_shared/_commonValidationMessages/ValidationMessages.ts";
 import { handleAllSuccessResponse } from "../../_successHandler/CommonSuccessResponse.ts";
 import { deleteContestById } from "../../_QueriesAndTabledDetails/ContestModuleQueries.ts";
+import { checkPrivillege } from "../../_middleware/CheckAuthorization.ts";
+import { USER_ROLES } from "../../_shared/_constant/UserRoles.ts";
+import { validateContestId } from "../../_validation/_contestModulValidation/ValidateContestAllDetails.ts";
 
 
 export async function handleDeleteContest(req: Request,params: string) {
    try {
+      
+      const privillege=  await checkPrivillege(req,[USER_ROLES.ADMIN_ROLE]);
+
+      if(privillege instanceof Response){
+           return privillege;
+      }
+
      
       console.log("contest id",params);
       const contest_id =params;
 
       // Validate contest ID
-      if (!contest_id || !V4.isValid(contest_id)) {
-         console.log("Error: Invalid or missing contest ID.");
-         return handleAllErrors({
-            status_code: HTTP_STATUS_CODE.BAD_REQUEST,
-            error_message: CONTEST_VALIDATION_MESSAGES.INVALID_CONTEST_ID,
-            error_time: new Date(),
-         });
-      }
+     const validatedId= validateContestId(contest_id);
+     if(validatedId instanceof Response){
+         return validatedId;
+     }
 
       // Attempt to delete the contest by id
       const {deletedData,error} = await deleteContestById(contest_id);
@@ -40,7 +44,7 @@ export async function handleDeleteContest(req: Request,params: string) {
          return handleAllErrors({
             status_code: HTTP_STATUS_CODE.NOT_FOUND,
             error_message: CONTEST_MODULE_ERROR_MESSAGES.CONTEST_NOT_FOUND_OR_DELETED,
-            error_time: new Date(),
+            
          });
       }
 
@@ -54,7 +58,7 @@ export async function handleDeleteContest(req: Request,params: string) {
       return handleAllErrors({
          status_code: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
          error_message: `${COMMON_ERROR_MESSAGES.INTERNAL_SERVER_ERROR} ${error}`,
-         error_time: new Date(),
+        
       });
    }
 }

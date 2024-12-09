@@ -6,20 +6,29 @@ import { COMMON_ERROR_MESSAGES } from "../../_shared/_commonErrorMessages/ErrorM
 import { CONTEST_MODULE_SUCCESS_MESSAGES } from "../../_shared/_commonSuccessMessages/SuccessMessages.ts";
 import { handleAllSuccessResponse } from "../../_successHandler/CommonSuccessResponse.ts";
 import { createContest } from "../../_QueriesAndTabledDetails/ContestModuleQueries.ts";
+import { checkPrivillege } from "../../_middleware/CheckAuthorization.ts";
+import { USER_ROLES } from "../../_shared/_constant/UserRoles.ts";
 
 export async function handleCreateContext(req: Request):Promise<Response> {
     try {
+
+      const privillege=  await checkPrivillege(req,[USER_ROLES.ADMIN_ROLE]);
+
+      if(privillege instanceof Response){
+           return privillege;
+      }
+
         // Parsing the request body to get the contest details
         const contestData :ContestModel= await req.json();
 
 
         // Validating the contest details
-        const validationErrors = validateContestDetails(contestData);
-        console.log("contest Validation Errors:", validationErrors);
-
-        if (validationErrors instanceof Response) {
-            return validationErrors;
-        }
+        const validatedData=validateContestDetails(contestData);
+        if(validatedData instanceof Response){
+            return validatedData;
+       }
+ 
+       
 
         contestData.created_at = new Date().toISOString();
         contestData.status = contestData.status?.toLocaleLowerCase();
@@ -33,7 +42,7 @@ export async function handleCreateContext(req: Request):Promise<Response> {
             return handleAllErrors({
                 status_code: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
                 error_message: `${COMMON_ERROR_MESSAGES.DATABASE_ERROR} ${error?.message}`,
-                error_time: new Date(),
+               
             });
         }
 
@@ -52,7 +61,7 @@ export async function handleCreateContext(req: Request):Promise<Response> {
             status_code: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
             error_message:
                 `${COMMON_ERROR_MESSAGES.INTERNAL_SERVER_ERROR}, ${error}`,
-            error_time: new Date(),
+           
         });
     }
 }

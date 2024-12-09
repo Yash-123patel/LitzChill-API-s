@@ -15,9 +15,13 @@ export async function routeHandler(req:Request,routes:Record<string,any>){
 
     //gethering all routes path into single array
     console.log("all routes values",Object.values(routes));
+
+
     const allRoutes = Object.values(routes).flatMap((allPresentRoutes) =>
         Object.keys(allPresentRoutes)
       );
+
+
       console.log("allroutes gethered :",allRoutes);
       console.log("Request path: ",path);
 
@@ -28,9 +32,9 @@ export async function routeHandler(req:Request,routes:Record<string,any>){
       //if method is not match is undefined then we are returning method not allowed
       if(allMatchedMethodRoutes==undefined){
         return handleAllErrors({
-          status_code:HTTP_STATUS_CODE.METHOD_NOT_ALLOWED,
-          error_message:COMMON_ERROR_MESSAGES.METHOD_NOT_ALLOWED,
-          error_time:new Date()
+             status_code:HTTP_STATUS_CODE.METHOD_NOT_ALLOWED,
+             error_message:COMMON_ERROR_MESSAGES.METHOD_NOT_ALLOWED,
+        
          })
       }
 
@@ -44,10 +48,9 @@ export async function routeHandler(req:Request,routes:Record<string,any>){
                  return handleAllErrors({
                  status_code:HTTP_STATUS_CODE.METHOD_NOT_ALLOWED,
                  error_message:COMMON_ERROR_MESSAGES.METHOD_NOT_ALLOWED,
-                 error_time:new Date()
+               
                 })
-            }
-            
+            }  
         }
 
         //checking for static routes if present then calling handler
@@ -58,7 +61,9 @@ export async function routeHandler(req:Request,routes:Record<string,any>){
         //checking for dyanamic route matching 
         for (const routePattern in allMatchedMethodRoutes) {
             //calling extractparam function and get param value from path
+            console.log(routePattern,path);
             const param = extractParameter(routePattern, path);
+            
             if (param) {
               const {id}=param;
                 //calling handler if path is correct 
@@ -71,17 +76,17 @@ export async function routeHandler(req:Request,routes:Record<string,any>){
          console.log("trimmed path",trimmedPath);
           if(allRoutes.includes(trimmedPath)){
             return handleAllErrors({
-              status_code:HTTP_STATUS_CODE.METHOD_NOT_ALLOWED,
-              error_message:COMMON_ERROR_MESSAGES.METHOD_NOT_ALLOWED,
-              error_time:new Date()
+               status_code:HTTP_STATUS_CODE.METHOD_NOT_ALLOWED,
+               error_message:COMMON_ERROR_MESSAGES.METHOD_NOT_ALLOWED,
+             
              })
           }  
         
           //returning route not found response
         return handleAllErrors({
-            status_code:HTTP_STATUS_CODE.NOT_FOUND,
-            error_message:COMMON_ERROR_MESSAGES.ROUTE_NOT_FOUND,
-            error_time:new Date()
+             status_code:HTTP_STATUS_CODE.NOT_FOUND,
+             error_message:COMMON_ERROR_MESSAGES.ROUTE_NOT_FOUND,
+           
         })
 }
 
@@ -95,7 +100,7 @@ export function extractParameter(routePattern: string, path: string) {
 
       // Return null if path lengths do not match
         if (routePath.length !== actualPath.length) {
-         return null;
+             return null;
         }
 
         const params: Record<string, string> = {};

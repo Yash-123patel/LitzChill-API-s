@@ -11,22 +11,20 @@ import { FLAG_MODULE_SUCCESS_MESSAGES } from "../../_shared/_commonSuccessMessag
 import { checkUserId } from "../../_QueriesAndTabledDetails/UserModuleQueries.ts";
 import { checkContentId, updateFlagCount } from "../../_QueriesAndTabledDetails/MemeModuleQueries.ts";
 import { addFlagToMeme, chekUserAlreadyFlag } from "../../_QueriesAndTabledDetails/FlagModuleQueries.ts";
+import { checkPrivillege } from "../../_middleware/CheckAuthorization.ts";
+import { USER_ROLES } from "../../_shared/_constant/UserRoles.ts";
 
 export async function handleAddFlagRequest(req: Request) {
-    try {
+    try {  
+      const userprivillege= await checkPrivillege(req,[USER_ROLES.ADMIN_ROLE,USER_ROLES.USER_ROLE]);
+
+       if(userprivillege instanceof Response){
+           return userprivillege;
+       }
+
         // Parsing the request body to get flag details
         const flagData: FlagModel = await req.json();
 
-
-        // Checking if the flag data is empty
-        if (Object.keys(flagData).length == 0) {
-            console.log("Empty request body");
-            return handleAllErrors({
-                status_code: HTTP_STATUS_CODE.BAD_REQUEST,
-                error_message: COMMON_ERROR_MESSAGES.EMPTY_REQUEST_BODY,
-                error_time: new Date(),
-            });
-        }
 
         // Validating the flag details
         const validationErrors = validateFlagDetails(flagData);
@@ -47,7 +45,7 @@ export async function handleAddFlagRequest(req: Request) {
             return handleAllErrors({
                 status_code: HTTP_STATUS_CODE.NOT_FOUND,
                 error_message: COMMENT_MODULE_ERROR_MESSAGES.USER_NOT_FOUND,
-                error_time: new Date(),
+                
             });
         }
 
@@ -62,7 +60,7 @@ export async function handleAddFlagRequest(req: Request) {
             return handleAllErrors({
                 status_code: HTTP_STATUS_CODE.NOT_FOUND,
                 error_message: COMMENT_MODULE_ERROR_MESSAGES.CONTENT_NOT_FOUND,
-                error_time: new Date(),
+             
             });
         }
 
@@ -77,7 +75,7 @@ export async function handleAddFlagRequest(req: Request) {
             return handleAllErrors({
                 status_code: HTTP_STATUS_CODE.CONFLICT,
                 error_message: FLAG_ERROR_MESSAGES.USER_ALREADY_ADDED_FLAG,
-                error_time: new Date(),
+               
             });
         }
 
@@ -94,7 +92,7 @@ export async function handleAddFlagRequest(req: Request) {
             return handleAllErrors({
                 status_code: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
                 error_message: FLAG_ERROR_MESSAGES.FLAG_ERROR_DURING_ADDING,
-                error_time: new Date(),
+             
             });
         }
 
@@ -113,7 +111,7 @@ export async function handleAddFlagRequest(req: Request) {
         return handleAllErrors({
             status_code: HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR,
             error_message: `${COMMON_ERROR_MESSAGES.INTERNAL_SERVER_ERROR} ${error}`,
-            error_time: new Date(),
+           
         });
     }
 }
